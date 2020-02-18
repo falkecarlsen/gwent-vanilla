@@ -11,9 +11,12 @@ import (
 )
 
 type Board struct {
-	player1Rows  [3]Row
-	player2Rows  [3]Row
+	playerRows   [2]PlayerRow
 	weatherCards []Card
+}
+
+type PlayerRow struct {
+	rows [3]Row
 }
 
 type Row struct {
@@ -145,8 +148,52 @@ func playGame(player1 *Player, player2 *Player) {
 }
 
 func playRound(game Game, roundNum int) Game {
+	board := initBoard()
+	starterPlayerRandomChoice := rand.Int() % len(game.rounds[roundNum].startingPlayer.cards)
+	//FIXME, add choosing row to put card into
+
+	startingPlayerIndex := findIndexOfPlayerReference(game.rounds[roundNum].startingPlayer, game)
+	playCard(game.rounds[roundNum].startingPlayer, startingPlayerIndex, starterPlayerRandomChoice, Diamonds, board, game)
+
+	// Do round
 
 	return game
+}
+
+func playCard(player *Player, playerIndex int, card int, row Suit, board Board, game Game) Game {
+
+	switch player.cards[card].value {
+	case 0: // Ace
+		// FIXME, implement destroy most powerful unit in suit-row on entire board
+	case 1: // Two
+		switch player.cards[card].suit {
+		case Hearts: // clear all weather effects
+			board.weatherCards = nil
+		default:
+			board.weatherCards = append(board.weatherCards, player.cards[card])
+		}
+	case 8: // Nines (Spies). Add to other players rows
+		switch player.cards[card].suit {
+		case Hearts:
+
+		}
+	default:
+		switch player.cards[card].suit {
+		case Hearts:
+
+		}
+
+	}
+	return game
+}
+
+func findIndexOfPlayerReference(player *Player, game Game) int {
+	for i, playr := range game.players {
+		if playr == player {
+			return i
+		}
+	}
+	panic("Yikes, could not find player in game. Somethings very broken.")
 }
 
 func initBoard() Board {
@@ -160,10 +207,15 @@ func initBoard() Board {
 		cards: nil,
 		suit:  Spades,
 	}}
+	/* FIXME: multidimensional array of rows
+	blankPlayerRow := [2][3]PlayerRow{blankRow, blankRow}
 	return Board{
-		player1Rows:  blankRow,
-		player2Rows:  blankRow,
+		playerRows:   blankPlayerRow,
 		weatherCards: nil,
+	}*/
+	print(len(blankRow)) //FIXME: dumb operation
+	return Board{
+		playerRows: [2]PlayerRow{},
 	}
 }
 
