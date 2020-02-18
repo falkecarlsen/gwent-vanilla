@@ -18,7 +18,8 @@ type Game struct {
 }
 
 type Round struct {
-	winner *Player
+	winner         *Player
+	startingPlayer *Player
 }
 
 type Player struct {
@@ -68,6 +69,13 @@ func main() {
 	//server()
 }
 
+func printCardsDebug(game Game) {
+	fmt.Printf("number of cards: %v\n cards: %+v\n", len(game.deck), game.deck)
+	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[0].cards), game.players[0].cards)
+	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[1].cards), game.players[1].cards)
+	fmt.Printf("total number of cards in play: %v\n", len(game.deck)+len(game.players[0].cards)+len(game.players[1].cards))
+}
+
 func playGame(player1 *Player, player2 *Player) {
 	if player1 == nil || player2 == nil {
 		panic("Players cannot be null")
@@ -86,20 +94,48 @@ func playGame(player1 *Player, player2 *Player) {
 	// Deal cards
 	game.deck = dealCards(player1, player2, game.deck)
 
-	fmt.Printf("number of cards: %v\n cards: %+v\n", len(game.deck), game.deck)
-	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[0].cards), game.players[0].cards)
-	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[1].cards), game.players[1].cards)
+	printCardsDebug(game)
 
-	// Discard two
+	// Discard two dealt cards
 	discardTwoCardsGameStart(player1)
 	discardTwoCardsGameStart(player2)
 
-	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[0].cards), game.players[0].cards)
-	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[1].cards), game.players[1].cards)
+	printCardsDebug(game)
 
 	// Check who goes first and choose alignment in order
+	var startingPlayerIndex int
+	startingPlayerIndex, game.rounds[0].startingPlayer = diceTossStartingPlayer(game)
+
+	if startingPlayerIndex == 0 {
+		// Player 2 chooses alignment first
+		chooseAlignment(game, 1)
+		chooseAlignment(game, 0)
+	} else {
+		// Player 1 chooses alignment first
+		chooseAlignment(game, 0)
+		chooseAlignment(game, 1)
+	}
 
 	// Play rounds (until pass) - check for win condition after each round
+	for i := 0; i < 3; i++ {
+		// Check who goes first
+
+		// Do pre-game alignment (Mind)
+
+		
+	}
+}
+
+func chooseAlignment(game Game, i int) Game {
+	alignment := Might
+	game.players[i].alignment = alignment
+	return game
+}
+
+func diceTossStartingPlayer(game Game) (int, *Player) {
+	// return pointer to player who goes first
+	index := rand.Int() % len(game.players)
+	return index, game.players[index]
 }
 
 func dealCards(player1 *Player, player2 *Player, deck []Card) []Card {
@@ -144,24 +180,6 @@ func checkForWin(game Game) (bool, *Player) {
 		}
 	}
 	return false, &Player{}
-}
-
-func doRound(player1 Player, player2 Player, game Game) {
-	// Check if just starting round
-	if game.currentRound == 0 {
-		handleGameStart()
-	}
-
-	// Check for precondition alignment actions
-	if player1.alignment == Mind {
-
-	} else if player2.alignment == Mind {
-
-	}
-}
-
-func handleGameStart() {
-	//
 }
 
 func generateDeck(jokerNum int) []Card {
