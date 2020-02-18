@@ -10,6 +10,17 @@ import (
 	"time"
 )
 
+type Board struct {
+	player1Rows  [3]Row
+	player2Rows  [3]Row
+	weatherCards []Card
+}
+
+type Row struct {
+	cards []Card
+	suit  Suit
+}
+
 type Game struct {
 	currentRound int // using default of 0
 	deck         []Card
@@ -120,12 +131,39 @@ func playGame(player1 *Player, player2 *Player) {
 
 	// Play rounds (until pass) - check for win condition after each round
 	for i := 0; i < 3; i++ {
-		// Check who goes first
+		// Check who goes first, if not first round and set to last rounds winner
+		if game.rounds[i].startingPlayer == nil && i > 0 {
+			game.rounds[i].startingPlayer = game.rounds[i-1].startingPlayer
+		}
 
-		// Do pre-game alignment (Mind)
+		// FIXME: Do pre-game alignment (Mind)
 
 		// Starting player plays a card (maybe func)
+		playRound(game, i)
 
+	}
+}
+
+func playRound(game Game, roundNum int) Game {
+
+	return game
+}
+
+func initBoard() Board {
+	blankRow := [3]Row{Row{
+		cards: nil,
+		suit:  Clubs,
+	}, Row{
+		cards: nil,
+		suit:  Diamonds,
+	}, Row{
+		cards: nil,
+		suit:  Spades,
+	}}
+	return Board{
+		player1Rows:  blankRow,
+		player2Rows:  blankRow,
+		weatherCards: nil,
 	}
 }
 
