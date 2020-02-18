@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"testing"
+	"time"
 )
 
 type Game struct {
@@ -52,6 +53,7 @@ const (
 )
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	var player1 = Player{
 		name:      "Bob",
 		cards:     nil,
@@ -89,7 +91,7 @@ func playGame(player1 *Player, player2 *Player) {
 		winner:       nil,
 	}
 
-	fmt.Printf("number of cards: %v\n cards: %+v\n", len(game.deck), game.deck)
+	fmt.Printf("number of cards: %v\ncards: %+v\n", len(game.deck), game.deck)
 
 	// Deal cards
 	game.deck = dealCards(player1, player2, game.deck)
@@ -122,7 +124,8 @@ func playGame(player1 *Player, player2 *Player) {
 
 		// Do pre-game alignment (Mind)
 
-		
+		// Starting player plays a card (maybe func)
+
 	}
 }
 
