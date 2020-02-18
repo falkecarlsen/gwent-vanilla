@@ -13,13 +13,12 @@ type Game struct {
 	currentRound int // using default of 0
 	deck         []Card
 	rounds       [3]Round
-	players      [2]Player
+	players      [2]*Player
 	winner       *Player
 }
 
 type Round struct {
-	players [2]Player // Assumes that [2] limits amount of players to two
-	winner  *Player
+	winner *Player
 }
 
 type Player struct {
@@ -52,44 +51,105 @@ const (
 )
 
 func main() {
-	defaultCards := []Card{Card{}, Card{}, Card{}}
-
 	var player1 = Player{
 		name:      "Bob",
-		cards:     defaultCards,
+		cards:     nil,
 		alignment: Mind,
 	}
 
 	var player2 = Player{
 		name:      "Alice",
-		cards:     defaultCards,
+		cards:     nil,
 		alignment: Magic,
 	}
 
-	var round1 = Round{players: [2]Player{player1, player2}}
+	playGame(&player1, &player2)
 
-	// do round
+	//server()
+}
 
-	round1.winner = &player1
+func playGame(player1 *Player, player2 *Player) {
+	if player1 == nil || player2 == nil {
+		panic("Players cannot be null")
+	}
 
 	game := Game{
 		currentRound: 0,
-		rounds:       [3]Round{round1},
-		players:      [2]Player{player1, player2},
+		deck:         generateDeck(2),
+		rounds:       [3]Round{},
+		players:      [2]*Player{player1, player2},
 		winner:       nil,
 	}
 
-	fmt.Printf("number of cards: %+v\n", len(game.deck))
+	fmt.Printf("number of cards: %v\n cards: %+v\n", len(game.deck), game.deck)
 
-	fmt.Printf("%+v\n", game)
+	// Deal cards
+	game.deck = dealCards(player1, player2, game.deck)
 
-	//server()
+	fmt.Printf("number of cards: %v\n cards: %+v\n", len(game.deck), game.deck)
+	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[0].cards), game.players[0].cards)
+	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[1].cards), game.players[1].cards)
+
+	// Discard two
+	discardTwoCardsGameStart(player1)
+	discardTwoCardsGameStart(player2)
+
+	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[0].cards), game.players[0].cards)
+	fmt.Printf("player1 num of cards: %v\t, cards:%+v\n", len(game.players[1].cards), game.players[1].cards)
+
+	// Check who goes first and choose alignment in order
+
+	// Play rounds (until pass) - check for win condition after each round
+}
+
+func dealCards(player1 *Player, player2 *Player, deck []Card) []Card {
+	for i := 0; i < 24; i++ {
+		var card Card
+		// pop card from deck
+		card, deck = deck[len(deck)-1], deck[:len(deck)-1]
+		// add card to player deck
+		if i%2 == 0 {
+			player1.cards = append(player1.cards, card)
+		} else {
+			player2.cards = append(player2.cards, card)
+		}
+	}
+	return deck
+}
+
+func discardTwoCardsGameStart(player *Player) {
+	for i := 0; i < 2; i++ {
+		discardCard(player, 0)
+	}
+}
+
+func discardCard(player *Player, i int) {
+	if len(player.cards) < i {
+		panic("Cannot remove a card out of bounds for hand")
+	}
+	// Delete card at i from cards
+	player.cards = player.cards[:i+copy(player.cards[i:], player.cards[i+1:])]
+}
+
+func checkForWin(game Game) (bool, *Player) {
+	for _, player := range game.players {
+		playerWins := 0
+		for _, round := range game.rounds {
+			if round.winner == player {
+				playerWins++
+			}
+		}
+		if playerWins >= 2 {
+			return true, player
+		}
+	}
+	return false, &Player{}
 }
 
 func doRound(player1 Player, player2 Player, game Game) {
 	// Check if just starting round
 	if game.currentRound == 0 {
-		generateDeck(3)
+		handleGameStart()
 	}
 
 	// Check for precondition alignment actions
@@ -98,6 +158,10 @@ func doRound(player1 Player, player2 Player, game Game) {
 	} else if player2.alignment == Mind {
 
 	}
+}
+
+func handleGameStart() {
+	//
 }
 
 func generateDeck(jokerNum int) []Card {
@@ -150,7 +214,7 @@ func mindPickCard(player Player) {
 
 func server() {
 
-	http.HandleFunc("/", http.FileServer(http.Dir("./public/")).ServeHTTP)
+	http.HandleFunc("/", http.FileServer(http.Dir("./src/public/")).ServeHTTP)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
