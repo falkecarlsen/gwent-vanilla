@@ -30,16 +30,19 @@ FOLDER = Path(__file__).absolute().parent
 CARDS_FOLDER = FOLDER / "src" / "public" / "cards"
 ASSETS_FOLDER = FOLDER / "assets"
 
-BASE_IMGS = {
-    Suit.MELEE: Image.open(ASSETS_FOLDER / "base_melee.png"),
-    Suit.RANGED: Image.open(ASSETS_FOLDER / "base_ranged.png"),
-    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "base_cavalry.png"),
+BASE_IMG_PATH = ASSETS_FOLDER / "base.png"
+
+SUIT_DECORATIONS = {
+    Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_decorations.png"),
+    Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_decorations.png"),
+    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_decorations.png"),
+    Suit.WILD: Image.open(ASSETS_FOLDER / "cavalry_decorations.png"),
 }
 
 SUIT_ICONS = {
-    Suit.MELEE: Image.open(ASSETS_FOLDER / "icon_suit_melee.png"),
-    Suit.RANGED: Image.open(ASSETS_FOLDER / "icon_suit_ranged.png"),
-    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "icon_suit_cavalry.png"),
+    Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_icon.png"),
+    Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_icon.png"),
+    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_icon.png"),
 }
 
 # ===================== Card data =====================
@@ -52,11 +55,12 @@ cards = [
 
 # ===================== Image generation =====================
 for card in cards:
-    img = Image.new("RGBA", SIZE, (0, 0, 0, 0))
+    #img = Image.new("RGBA", SIZE, (0, 0, 0, 0))
+    img = Image.open(BASE_IMG_PATH)
     draw = ImageDraw.Draw(img)
 
-    suit_base, suit_icon = BASE_IMGS[card.suit], SUIT_ICONS[card.suit]
-    img.paste(suit_base, (0, 0), suit_base)
-    img.paste(suit_icon, (16, 2), suit_icon)
+    suit_decoration, suit_icon = SUIT_DECORATIONS[card.suit], SUIT_ICONS[card.suit]
+    img.paste(suit_decoration, (0, 0), suit_decoration)
+    img.paste(suit_icon, (0, 0), suit_icon)
 
     img.save(CARDS_FOLDER / card.file_name, "PNG")
