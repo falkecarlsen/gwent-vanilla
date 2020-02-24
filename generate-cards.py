@@ -26,12 +26,28 @@ class Ability(Enum):
     IMMUNE = 6  # King
 
 
+class Effect(Enum):
+    WEATHER = 0
+    SCORCH = 1
+    EMPOWER = 2
+
+
 @dataclass
 class Card:
+    file_name: str
+
+
+@dataclass
+class Unit(Card):
     suit: Suit
     power: int
     ability: Optional[Ability]
-    file_name: str
+
+
+@dataclass
+class Special(Card):
+    suit: Suit
+    effect: Effect
 
 
 # ===================== Constants =====================
@@ -43,13 +59,21 @@ FOLDER = Path(__file__).absolute().parent
 CARDS_FOLDER = FOLDER / "src" / "public" / "cards"
 ASSETS_FOLDER = FOLDER / "assets"
 
-BASE_IMG_PATH = ASSETS_FOLDER / "base.png"
+BASE_UNIT_IMG_PATH = ASSETS_FOLDER / "base.png"
+BASE_SPECIAL_IMG_PATH = ASSETS_FOLDER / "base_special.png"
 
 SUIT_DECORATIONS = {
     Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_decorations.png"),
     Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_decorations.png"),
     Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_decorations.png"),
     Suit.WILD: Image.open(ASSETS_FOLDER / "wild_decorations.png"),
+}
+
+SUIT_DECORATIONS_SPECIAL = {
+    Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_decorations_special.png"),
+    Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_decorations_special.png"),
+    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_decorations_special.png"),
+    Suit.WILD: Image.open(ASSETS_FOLDER / "wild_decorations_special.png"),
 }
 
 SUIT_ICONS = {
@@ -71,67 +95,88 @@ ABILITY_ICONS = {
 
 # ===================== Card data =====================
 cards = [
-    Card(Suit.MELEE, 3, Ability.HORDE, "melee_3.png"),
-    Card(Suit.MELEE, 4, Ability.SEER, "melee_4.png"),
-    Card(Suit.MELEE, 5, None, "melee_5.png"),
-    Card(Suit.MELEE, 6, None, "melee_6.png"),
-    Card(Suit.MELEE, 7, None, "melee_7.png"),
-    Card(Suit.MELEE, 8, None, "melee_8.png"),
-    Card(Suit.MELEE, 9, None, "melee_9.png"),
-    Card(Suit.MELEE, 10, Ability.SPY, "melee_10.png"),
-    Card(Suit.MELEE, 10, Ability.COMMANDER, "melee_jack.png"),
-    Card(Suit.MELEE, 10, Ability.UNIQUE, "melee_queen.png"),
-    Card(Suit.MELEE, 10, Ability.IMMUNE, "melee_king.png"),
-    Card(Suit.RANGED, 3, Ability.HORDE, "ranged_3.png"),
-    Card(Suit.RANGED, 4, Ability.SEER, "ranged_4.png"),
-    Card(Suit.RANGED, 5, None, "ranged_5.png"),
-    Card(Suit.RANGED, 6, None, "ranged_6.png"),
-    Card(Suit.RANGED, 7, None, "ranged_7.png"),
-    Card(Suit.RANGED, 8, None, "ranged_8.png"),
-    Card(Suit.RANGED, 9, None, "ranged_9.png"),
-    Card(Suit.RANGED, 10, Ability.SPY, "ranged_10.png"),
-    Card(Suit.RANGED, 10, Ability.COMMANDER, "ranged_jack.png"),
-    Card(Suit.RANGED, 10, Ability.UNIQUE, "ranged_queen.png"),
-    Card(Suit.RANGED, 10, Ability.IMMUNE, "ranged_king.png"),
-    Card(Suit.CAVALRY, 3, Ability.HORDE, "cavalry_3.png"),
-    Card(Suit.CAVALRY, 4, Ability.SEER, "cavalry_4.png"),
-    Card(Suit.CAVALRY, 5, None, "cavalry_5.png"),
-    Card(Suit.CAVALRY, 6, None, "cavalry_6.png"),
-    Card(Suit.CAVALRY, 7, None, "cavalry_7.png"),
-    Card(Suit.CAVALRY, 8, None, "cavalry_8.png"),
-    Card(Suit.CAVALRY, 9, None, "cavalry_9.png"),
-    Card(Suit.CAVALRY, 10, Ability.SPY, "cavalry_10.png"),
-    Card(Suit.CAVALRY, 10, Ability.COMMANDER, "cavalry_jack.png"),
-    Card(Suit.CAVALRY, 10, Ability.UNIQUE, "cavalry_queen.png"),
-    Card(Suit.CAVALRY, 10, Ability.IMMUNE, "cavalry_king.png"),
-    Card(Suit.WILD, 3, Ability.HORDE, "wild_3.png"),
-    Card(Suit.WILD, 4, Ability.SEER, "wild_4.png"),
-    Card(Suit.WILD, 5, Ability.WIZARD, "wild_5.png"),
-    Card(Suit.WILD, 6, None, "wild_6.png"),
-    Card(Suit.WILD, 7, None, "wild_7.png"),
-    Card(Suit.WILD, 8, None, "wild_8.png"),
-    Card(Suit.WILD, 9, None, "wild_9.png"),
-    Card(Suit.WILD, 10, Ability.SPY, "wild_10.png"),
-    Card(Suit.WILD, 10, Ability.COMMANDER, "wild_jack.png"),
-    Card(Suit.WILD, 10, Ability.UNIQUE, "wild_queen.png"),
-    Card(Suit.WILD, 10, Ability.IMMUNE, "wild_king.png"),
+    Unit("melee_3.png", Suit.MELEE, 3, Ability.HORDE),
+    Unit("melee_4.png", Suit.MELEE, 4, Ability.SEER),
+    Unit("melee_5.png", Suit.MELEE, 5, None),
+    Unit("melee_6.png", Suit.MELEE, 6, None),
+    Unit("melee_7.png", Suit.MELEE, 7, None),
+    Unit("melee_8.png", Suit.MELEE, 8, None),
+    Unit("melee_9.png", Suit.MELEE, 9, None),
+    Unit("melee_10.png", Suit.MELEE, 10, Ability.SPY),
+    Unit("melee_jack.png", Suit.MELEE, 10, Ability.COMMANDER),
+    Unit("melee_queen.png", Suit.MELEE, 10, Ability.UNIQUE),
+    Unit("melee_king.png", Suit.MELEE, 10, Ability.IMMUNE),
+    Unit("ranged_3.png", Suit.RANGED, 3, Ability.HORDE),
+    Unit("ranged_4.png", Suit.RANGED, 4, Ability.SEER),
+    Unit("ranged_5.png", Suit.RANGED, 5, None),
+    Unit("ranged_6.png", Suit.RANGED, 6, None),
+    Unit("ranged_7.png", Suit.RANGED, 7, None),
+    Unit("ranged_8.png", Suit.RANGED, 8, None),
+    Unit("ranged_9.png", Suit.RANGED, 9, None),
+    Unit("ranged_10.png", Suit.RANGED, 10, Ability.SPY),
+    Unit("ranged_jack.png", Suit.RANGED, 10, Ability.COMMANDER),
+    Unit("ranged_queen.png", Suit.RANGED, 10, Ability.UNIQUE),
+    Unit("ranged_king.png", Suit.RANGED, 10, Ability.IMMUNE),
+    Unit("cavalry_3.png", Suit.CAVALRY, 3, Ability.HORDE),
+    Unit("cavalry_4.png", Suit.CAVALRY, 4, Ability.SEER),
+    Unit("cavalry_5.png", Suit.CAVALRY, 5, None),
+    Unit("cavalry_6.png", Suit.CAVALRY, 6, None),
+    Unit("cavalry_7.png", Suit.CAVALRY, 7, None),
+    Unit("cavalry_8.png", Suit.CAVALRY, 8, None),
+    Unit("cavalry_9.png", Suit.CAVALRY, 9, None),
+    Unit("cavalry_10.png", Suit.CAVALRY, 10, Ability.SPY),
+    Unit("cavalry_jack.png", Suit.CAVALRY, 10, Ability.COMMANDER),
+    Unit("cavalry_queen.png", Suit.CAVALRY, 10, Ability.UNIQUE),
+    Unit("cavalry_king.png", Suit.CAVALRY, 10, Ability.IMMUNE),
+    Unit("wild_3.png", Suit.WILD, 3, Ability.HORDE),
+    Unit("wild_4.png", Suit.WILD, 4, Ability.SEER),
+    Unit("wild_5.png", Suit.WILD, 5, Ability.WIZARD),
+    Unit("wild_6.png", Suit.WILD, 6, None),
+    Unit("wild_7.png", Suit.WILD, 7, None),
+    Unit("wild_8.png", Suit.WILD, 8, None),
+    Unit("wild_9.png", Suit.WILD, 9, None),
+    Unit("wild_10.png", Suit.WILD, 10, Ability.SPY),
+    Unit("wild_jack.png", Suit.WILD, 10, Ability.COMMANDER),
+    Unit("wild_queen.png", Suit.WILD, 10, Ability.UNIQUE),
+    Unit("wild_king.png", Suit.WILD, 10, Ability.IMMUNE),
+    Special("melee_scorch.png", Suit.MELEE, Effect.SCORCH),
+    Special("ranged_scorch.png", Suit.RANGED, Effect.SCORCH),
+    Special("cavalry_scorch.png", Suit.CAVALRY, Effect.SCORCH),
+    Special("wild_scorch.png", Suit.WILD, Effect.SCORCH),
+    Special("melee_weather.png", Suit.MELEE, Effect.WEATHER),
+    Special("ranged_weather.png", Suit.RANGED, Effect.WEATHER),
+    Special("cavalry_weather.png", Suit.CAVALRY, Effect.WEATHER),
+    Special("wild_weather.png", Suit.WILD, Effect.WEATHER),
 ]
 
 # ===================== Image generation =====================
 for card in cards:
-    #img = Image.new("RGBA", SIZE, (0, 0, 0, 0))
-    img = Image.open(BASE_IMG_PATH)
-    draw = ImageDraw.Draw(img)
 
-    suit_decoration, suit_icon = SUIT_DECORATIONS[card.suit], SUIT_ICONS[card.suit]
-    img.paste(suit_decoration, (0, 0), suit_decoration)
-    img.paste(suit_icon, (0, 0), suit_icon)
+    if isinstance(card, Unit):
 
-    if card.ability is not None:
-        symbol_pos = (39, 8)
-        ability_symbol = ABILITY_ICONS[card.ability]
-        img.paste(ability_symbol, symbol_pos, ability_symbol)
+        img = Image.open(BASE_UNIT_IMG_PATH)
+        draw = ImageDraw.Draw(img)
 
-    img.save(CARDS_FOLDER / card.file_name, "PNG")
+        suit_decoration, suit_icon = SUIT_DECORATIONS[card.suit], SUIT_ICONS[card.suit]
+        img.paste(suit_decoration, (0, 0), suit_decoration)
+        img.paste(suit_icon, (0, 0), suit_icon)
+
+        if card.ability is not None:
+            symbol_pos = (39, 8)
+            ability_symbol = ABILITY_ICONS[card.ability]
+            img.paste(ability_symbol, symbol_pos, ability_symbol)
+
+        img.save(CARDS_FOLDER / card.file_name, "PNG")
+
+    elif isinstance(card, Special):
+
+        img = Image.open(BASE_SPECIAL_IMG_PATH)
+        draw = ImageDraw.Draw(img)
+
+        suit_decoration = SUIT_DECORATIONS_SPECIAL[card.suit]
+        img.paste(suit_decoration, (0, 0), suit_decoration)
+
+        img.save(CARDS_FOLDER / card.file_name, "PNG")
+
 
 print(f"Generated {len(cards)} cards in {CARDS_FOLDER}")
