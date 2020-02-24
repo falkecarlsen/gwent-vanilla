@@ -74,6 +74,7 @@ SUIT_DECORATIONS_SPECIAL = {
     Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_decorations_special.png"),
     Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_decorations_special.png"),
     Suit.WILD: Image.open(ASSETS_FOLDER / "wild_decorations_special.png"),
+    Suit.JOKER: Image.open(ASSETS_FOLDER / "joker_decorations_special.png"),
 }
 
 SUIT_ICONS = {
@@ -91,6 +92,12 @@ ABILITY_ICONS = {
     Ability.SPY: Image.open(ASSETS_FOLDER / "spy_symbol.png"),
     Ability.COMMANDER: Image.open(ASSETS_FOLDER / "commander_symbol.png"),
     Ability.IMMUNE: Image.open(ASSETS_FOLDER / "immune_symbol.png"),
+}
+
+EFFECT_ICONS = {
+    Effect.WEATHER: Image.open(ASSETS_FOLDER / "weather_symbol.png"),
+    Effect.SCORCH: Image.open(ASSETS_FOLDER / "scorch_symbol.png"),
+    Effect.EMPOWER: Image.open(ASSETS_FOLDER / "empower_symbol.png"),
 }
 
 # ===================== Card data =====================
@@ -147,13 +154,14 @@ cards = [
     Special("ranged_weather.png", Suit.RANGED, Effect.WEATHER),
     Special("cavalry_weather.png", Suit.CAVALRY, Effect.WEATHER),
     Special("wild_weather.png", Suit.WILD, Effect.WEATHER),
+    Special("joker.png", Suit.JOKER, Effect.EMPOWER),
 ]
 
 # ===================== Image generation =====================
 for card in cards:
 
     if isinstance(card, Unit):
-
+        # Generate unit card
         img = Image.open(BASE_UNIT_IMG_PATH)
         draw = ImageDraw.Draw(img)
 
@@ -169,12 +177,15 @@ for card in cards:
         img.save(CARDS_FOLDER / card.file_name, "PNG")
 
     elif isinstance(card, Special):
-
+        # Generate special card
         img = Image.open(BASE_SPECIAL_IMG_PATH)
         draw = ImageDraw.Draw(img)
 
         suit_decoration = SUIT_DECORATIONS_SPECIAL[card.suit]
         img.paste(suit_decoration, (0, 0), suit_decoration)
+
+        effect_symbol = EFFECT_ICONS[card.effect]
+        img.paste(effect_symbol, (5, 5), effect_symbol)
 
         img.save(CARDS_FOLDER / card.file_name, "PNG")
 
