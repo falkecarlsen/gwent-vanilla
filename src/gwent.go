@@ -11,24 +11,22 @@ import (
 )
 
 type Board struct {
-	playerRows   [2]PlayerRow
-	weatherCards []Card
-}
-
-type PlayerRow struct {
-	rows [3]Row
+	playerMap    []map[Suit]Row
+	weatherCards map[Suit][]Card
 }
 
 type Row struct {
 	cards []Card
+	value int
 	suit  Suit
 }
 
 type Game struct {
 	currentRound int // using default of 0
+	board        Board
 	deck         []Card
 	rounds       [3]Round
-	players      [2]*Player
+	players      [2]*Player // might be better to own
 	winner       *Player
 }
 
@@ -45,25 +43,26 @@ type Player struct {
 
 type Card struct {
 	value int // ace(0) low, king(12) high
+	power int
 	suit  Suit
 }
 
 type Suit int
 
 const (
-	Clubs    Suit = iota
-	Hearts   Suit = iota
-	Diamonds Suit = iota
-	Spades   Suit = iota
-	Joker    Suit = iota
+	Clubs Suit = iota
+	Hearts
+	Diamonds
+	Spades
+	Joker
 )
 
 type Alignment int
 
 const (
 	Might Alignment = iota
-	Magic Alignment = iota
-	Mind  Alignment = iota
+	Magic
+	Mind
 )
 
 func main() {
@@ -148,34 +147,38 @@ func playGame(player1 *Player, player2 *Player) {
 }
 
 func playRound(game Game, roundNum int) Game {
-	board := initBoard()
+	game.board = initBoard()
 	starterPlayerRandomChoice := rand.Int() % len(game.rounds[roundNum].startingPlayer.cards)
 	//FIXME, add choosing row to put card into
 
 	startingPlayerIndex := findIndexOfPlayerReference(game.rounds[roundNum].startingPlayer, game)
-	playCard(game.rounds[roundNum].startingPlayer, startingPlayerIndex, starterPlayerRandomChoice, Diamonds, board, game)
+	playCard(game.rounds[roundNum].startingPlayer, startingPlayerIndex, starterPlayerRandomChoice, Diamonds, game)
 
 	// Do round
 
 	return game
 }
 
-func playCard(player *Player, playerIndex int, card int, row Suit, board Board, game Game) Game {
-
+func playCard(player *Player, playerIndex int, card int, row Suit, game Game) Game {
 	switch player.cards[card].value {
 	case 0: // Ace
 		// FIXME, implement destroy most powerful unit in suit-row on entire board
 	case 1: // Two
 		switch player.cards[card].suit {
 		case Hearts: // clear all weather effects
-			board.weatherCards = nil
+			game.board.weatherCards = nil
 		default:
-			board.weatherCards = append(board.weatherCards, player.cards[card])
+			game.board.weatherCards[player.cards[card].suit] =
+				append(game.board.weatherCards[player.cards[card].suit], player.cards[card])
 		}
 	case 8: // Nines (Spies). Add to other players rows
-		switch player.cards[card].suit {
+		suit := player.cards[card].suit
+		switch suit {
 		case Hearts:
-
+		default:
+			row := game.board.playerMap[1-playerIndex][suit]
+			row.cards = append(row.cards, player.cards[card])
+			game.board.playerMap[1-playerIndex][suit] = row
 		}
 	default:
 		switch player.cards[card].suit {
@@ -185,6 +188,10 @@ func playCard(player *Player, playerIndex int, card int, row Suit, board Board, 
 
 	}
 	return game
+}
+
+func appendCardToPlayerMap(game *Game, card Card) {
+
 }
 
 func findIndexOfPlayerReference(player *Player, game Game) int {
@@ -197,25 +204,12 @@ func findIndexOfPlayerReference(player *Player, game Game) int {
 }
 
 func initBoard() Board {
-	blankRow := [3]Row{Row{
-		cards: nil,
-		suit:  Clubs,
-	}, Row{
-		cards: nil,
-		suit:  Diamonds,
-	}, Row{
-		cards: nil,
-		suit:  Spades,
-	}}
-	/* FIXME: multidimensional array of rows
-	blankPlayerRow := [2][3]PlayerRow{blankRow, blankRow}
 	return Board{
-		playerRows:   blankPlayerRow,
+		playerMap: []map[Suit]Row{
+			make(map[Suit]Row),
+			make(map[Suit]Row),
+		},
 		weatherCards: nil,
-	}*/
-	print(len(blankRow)) //FIXME: dumb operation
-	return Board{
-		playerRows: [2]PlayerRow{},
 	}
 }
 
