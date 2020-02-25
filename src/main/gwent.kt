@@ -41,5 +41,5 @@ fun generateDeck(): List<Card> {
 
     assert(deck.size == 54)
 
-    return deck
+    return deck.shuffled()
 }
