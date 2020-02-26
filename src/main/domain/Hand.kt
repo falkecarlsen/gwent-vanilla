@@ -1,3 +1,3 @@
 package main.domain
 
-class Hand constructor(cards: List<Card>)
+data class Hand(var cards: MutableList<Card>)

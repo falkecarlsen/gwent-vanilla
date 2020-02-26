@@ -1,3 +1,3 @@
 package main.domain
 
-data class Board(var rows: List<Row>, var power: Int)
+data class Board(var rows: List<Row> = mutableListOf(), var power: Int = 0)
