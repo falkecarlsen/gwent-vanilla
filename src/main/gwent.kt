@@ -17,7 +17,7 @@ fun main() {
     val player1 = Player("La Primera")
     val player2 = Player("El Segundo")
 
-    val game = Game(mapOf(player1 to Board(listOf(row), 1)))
+    val game = Game(listOf(player1, player2))
 
     var deck = generateDeck()
     //deck.map { println(it) }

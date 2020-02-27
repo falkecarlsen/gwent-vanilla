@@ -1,23 +1,25 @@
 package main.domain
 
-class Game constructor(var playerz: List<Player>) : Gwent {
-    override fun getPlayers(): List<Player> {
-        return playerz
+data class Game constructor(var players: List<Player>) : Gwent {
+
+    override fun getPlayerss(): List<Player> {
+        return players
     }
 
     override fun getGame(): Game {
         return this
     }
 
-    override fun getWinner(game: Game) {
-        val winner = playerz.maxWith(object : Comparator<Player> {
-            override fun compare(o1: Player, o2: Player): Int = when {
-                o1.wonRounds > o2.wonRounds -> 1
-                o1.wonRounds == o2.wonRounds -> 0 if (o1)
-
-            }{
+    override fun getWinner(game: Game): Player? {
+        val wonRoundsComparator = compareBy<Player> { it.wonRounds }
+        val alignmentComparator = wonRoundsComparator.thenBy {
+            when (it.alignment) {
+                Alignment.Might -> 1
+                else -> 0
             }
-        })
+        }
+
+        return players.maxWith(alignmentComparator)
     }
 
     override fun getStartingPlayer(game: Game) {

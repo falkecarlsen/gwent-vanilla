@@ -1,9 +1,12 @@
 package main.domain
 
-data class Player constructor(val name: String, var wonRounds: Int = 0) {
+data class Player constructor(
+    val name: String,
+    var wonRounds: Int = 0,
+    var alignment: Alignment = Alignment.Undecided
+) {
     private var hand: MutableList<Card> = mutableListOf()
     private var pass: Boolean = false
-    private lateinit var alignment: Alignment
 
     fun addCard(card: Card) {
         hand.add(card)

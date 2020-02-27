@@ -1,9 +1,9 @@
 package main.domain
 
 interface GwentView {
-    fun getPlayers(): List<Player>
+    fun getPlayerss(): List<Player>
     fun getGame(): Game
-    fun getWinner(game: Game)
+    fun getWinner(game: Game): Player?
     fun getStartingPlayer(game: Game)
 }
 

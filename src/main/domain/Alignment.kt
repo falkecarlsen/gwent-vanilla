@@ -1,5 +1,5 @@
 package main.domain
 
 enum class Alignment {
-    Might, Magic, Mind
+    Might, Magic, Mind, Undecided
 }
