@@ -56,48 +56,48 @@ HEIGHT = 32
 SIZE = (WIDTH, HEIGHT)
 
 FOLDER = Path(__file__).absolute().parent
-CARDS_FOLDER = FOLDER / "src" / "public" / "cards"
-ASSETS_FOLDER = FOLDER / "assets"
+CARDS_FOLDER = FOLDER / "assets" / "cards"
+TEMPLATES_FOLDER = FOLDER / "templates"
 
-BASE_UNIT_IMG_PATH = ASSETS_FOLDER / "base.png"
-BASE_SPECIAL_IMG_PATH = ASSETS_FOLDER / "base_special.png"
+BASE_UNIT_IMG_PATH = TEMPLATES_FOLDER / "base.png"
+BASE_SPECIAL_IMG_PATH = TEMPLATES_FOLDER / "base_special.png"
 
 SUIT_DECORATIONS = {
-    Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_decorations.png"),
-    Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_decorations.png"),
-    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_decorations.png"),
-    Suit.WILD: Image.open(ASSETS_FOLDER / "wild_decorations.png"),
+    Suit.MELEE: Image.open(TEMPLATES_FOLDER / "melee_decorations.png"),
+    Suit.RANGED: Image.open(TEMPLATES_FOLDER / "ranged_decorations.png"),
+    Suit.CAVALRY: Image.open(TEMPLATES_FOLDER / "cavalry_decorations.png"),
+    Suit.WILD: Image.open(TEMPLATES_FOLDER / "wild_decorations.png"),
 }
 
 SUIT_DECORATIONS_SPECIAL = {
-    Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_decorations_special.png"),
-    Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_decorations_special.png"),
-    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_decorations_special.png"),
-    Suit.WILD: Image.open(ASSETS_FOLDER / "wild_decorations_special.png"),
-    Suit.JOKER: Image.open(ASSETS_FOLDER / "joker_decorations_special.png"),
+    Suit.MELEE: Image.open(TEMPLATES_FOLDER / "melee_decorations_special.png"),
+    Suit.RANGED: Image.open(TEMPLATES_FOLDER / "ranged_decorations_special.png"),
+    Suit.CAVALRY: Image.open(TEMPLATES_FOLDER / "cavalry_decorations_special.png"),
+    Suit.WILD: Image.open(TEMPLATES_FOLDER / "wild_decorations_special.png"),
+    Suit.JOKER: Image.open(TEMPLATES_FOLDER / "joker_decorations_special.png"),
 }
 
 SUIT_ICONS = {
-    Suit.MELEE: Image.open(ASSETS_FOLDER / "melee_icon.png"),
-    Suit.RANGED: Image.open(ASSETS_FOLDER / "ranged_icon.png"),
-    Suit.CAVALRY: Image.open(ASSETS_FOLDER / "cavalry_icon.png"),
-    Suit.WILD: Image.open(ASSETS_FOLDER / "wild_icon.png"),
+    Suit.MELEE: Image.open(TEMPLATES_FOLDER / "melee_icon.png"),
+    Suit.RANGED: Image.open(TEMPLATES_FOLDER / "ranged_icon.png"),
+    Suit.CAVALRY: Image.open(TEMPLATES_FOLDER / "cavalry_icon.png"),
+    Suit.WILD: Image.open(TEMPLATES_FOLDER / "wild_icon.png"),
 }
 
 ABILITY_ICONS = {
-    Ability.HORDE: Image.open(ASSETS_FOLDER / "horde_symbol.png"),
-    Ability.SEER: Image.open(ASSETS_FOLDER / "seer_symbol.png"),
-    Ability.UNIQUE: Image.open(ASSETS_FOLDER / "unique_symbol.png"),
-    Ability.WIZARD: Image.open(ASSETS_FOLDER / "wizard_symbol.png"),
-    Ability.SPY: Image.open(ASSETS_FOLDER / "spy_symbol.png"),
-    Ability.COMMANDER: Image.open(ASSETS_FOLDER / "commander_symbol.png"),
-    Ability.IMMUNE: Image.open(ASSETS_FOLDER / "immune_symbol.png"),
+    Ability.HORDE: Image.open(TEMPLATES_FOLDER / "horde_symbol.png"),
+    Ability.SEER: Image.open(TEMPLATES_FOLDER / "seer_symbol.png"),
+    Ability.UNIQUE: Image.open(TEMPLATES_FOLDER / "unique_symbol.png"),
+    Ability.WIZARD: Image.open(TEMPLATES_FOLDER / "wizard_symbol.png"),
+    Ability.SPY: Image.open(TEMPLATES_FOLDER / "spy_symbol.png"),
+    Ability.COMMANDER: Image.open(TEMPLATES_FOLDER / "commander_symbol.png"),
+    Ability.IMMUNE: Image.open(TEMPLATES_FOLDER / "immune_symbol.png"),
 }
 
 EFFECT_ICONS = {
-    Effect.WEATHER: Image.open(ASSETS_FOLDER / "weather_symbol.png"),
-    Effect.SCORCH: Image.open(ASSETS_FOLDER / "scorch_symbol.png"),
-    Effect.EMPOWER: Image.open(ASSETS_FOLDER / "empower_symbol.png"),
+    Effect.WEATHER: Image.open(TEMPLATES_FOLDER / "weather_symbol.png"),
+    Effect.SCORCH: Image.open(TEMPLATES_FOLDER / "scorch_symbol.png"),
+    Effect.EMPOWER: Image.open(TEMPLATES_FOLDER / "empower_symbol.png"),
 }
 
 # ===================== Card data =====================
