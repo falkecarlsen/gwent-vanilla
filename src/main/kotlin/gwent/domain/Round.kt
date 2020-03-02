@@ -1,6 +1,6 @@
-package main.domain
+package gwent.domain
 
-import main.domain.Round
+import gwent.domain.Round
 
 data class Round(val player1: Player, val player2: Player, val startingplayer: Player) {
     var boards: Map<Player, Board> = mapOf(Pair(player1, Board()), Pair(player2, Board()))

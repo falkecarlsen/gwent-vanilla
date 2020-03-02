@@ -1,4 +1,4 @@
-package main.domain
+package gwent.domain
 
 data class Row(var cards: List<Spell> = mutableListOf()) {
     fun calculate_power() {

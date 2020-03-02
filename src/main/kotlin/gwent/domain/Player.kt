@@ -1,4 +1,4 @@
-package main.domain
+package gwent.domain
 
 data class Player constructor(
     val name: String,
