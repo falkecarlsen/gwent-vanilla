@@ -1,7 +1,7 @@
 package main.domain
 
 interface GwentView {
-    fun getPlayerss(): List<Player>
+    val players: List<Player>
     fun getGame(): Game
     fun getWinner(game: Game): Player?
     fun getStartingPlayer(game: Game)
@@ -12,6 +12,7 @@ interface GwentInteract {
     fun playCard(player: Player)
     fun chooseAlignment(player: Player)
     fun pass(player: Player)
+    fun discardCardFromHand(player: Player)
 }
 
 interface GwentSetup {

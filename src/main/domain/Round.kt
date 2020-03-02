@@ -1,9 +1,8 @@
 package main.domain
 
-import main.flipCoin
+import main.domain.Round
 
-data class Round(val player1: Player, val player2: Player) {
-    val startingPlayer: Player = if (flipCoin()) player1 else player2
+data class Round(val player1: Player, val player2: Player, val startingplayer: Player) {
     var boards: Map<Player, Board> = mapOf(Pair(player1, Board()), Pair(player2, Board()))
     var turn = 0
     lateinit var lastPlayer: Player
@@ -17,7 +16,7 @@ data class Round(val player1: Player, val player2: Player) {
             // let player1 play until pass
         } else {
             if (turn == 0) {
-                playTurn(startingPlayer)
+                playTurn(this.startingplayer)
             } else {
                 // Do ordinary rounds
             }
@@ -34,6 +33,6 @@ data class Round(val player1: Player, val player2: Player) {
 
     fun decideWinner() {
         // check that both players have passed
-        // tally power on both sides
+        // tally power on both sides, if equal check for might alignment on either player
     }
 }

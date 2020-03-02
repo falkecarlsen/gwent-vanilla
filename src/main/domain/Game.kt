@@ -1,13 +1,12 @@
 package main.domain
 
-data class Game constructor(var players: List<Player>) : Gwent {
+import kotlin.random.Random
+import kotlin.test.asserter
 
-    override fun getPlayerss(): List<Player> {
-        return players
-    }
+class Game constructor(override var players: List<Player>) : Gwent {
 
-    override fun getGame(): Game {
-        return this
+    override fun getGame(): main.domain.Game {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getWinner(game: Game): Player? {
@@ -20,6 +19,46 @@ data class Game constructor(var players: List<Player>) : Gwent {
         }
 
         return players.maxWith(alignmentComparator)
+    }
+
+    fun playGame() {
+        // Generate deck
+        val deck = generateDeck()
+        // Deal cards to both players
+        for (i in 0..23) {
+            if (i % 2 == 0) {
+                TODO("not implemented")
+            } else {
+                TODO("not implemented")
+            }
+        }
+        asserter.assertTrue("Deal didn't go as planned", deck.size == 30)
+
+        val startingPlayer: Player = players[flipCoin()]
+
+        // Each player discards two cards
+        for (player in players) {
+            for (i in 0..1) {
+                discardCardFromHand(player)
+            }
+            asserter.assertTrue(
+                "Discarding of two cards for each player didn't go as planned",
+                player.hand.size == 10
+            )
+        }
+
+        // Choose alignments in order (starting player last for slight advantage)
+
+        // Play three rounds or until a player has two wins
+        for (i in 0..2) {
+            //TODO break if winner is found (maybe check edge-cases where winning player with 2 rounds has no more cards
+            // but losing player is the only Might alignment, and will always win last round, such that they win 1 round)
+            var round: Round = Round(players[0], players[1], startingPlayer)
+        }
+    }
+
+    fun flipCoin(): Int {
+        return if (Random.nextBoolean()) 1 else 0
     }
 
     override fun getStartingPlayer(game: Game) {
@@ -39,6 +78,10 @@ data class Game constructor(var players: List<Player>) : Gwent {
     }
 
     override fun pass(player: Player) {
+        player.pass()
+    }
+
+    override fun discardCardFromHand(player: Player) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -48,5 +91,9 @@ data class Game constructor(var players: List<Player>) : Gwent {
 
     override fun setupGame(): Game {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    fun generateDeck(): MutableList<Spell> {
+        TODO("not implemented")
     }
 }
