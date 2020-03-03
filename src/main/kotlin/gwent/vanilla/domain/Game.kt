@@ -1,8 +1,17 @@
 package gwent.vanilla.domain
 
+import gwent.vanilla.action.Action
 import kotlin.random.Random
 
 class Game constructor(override var players: List<Player>) : Gwent {
+
+    fun isActionValid(action: Action): Boolean {
+        TODO("not implemented")
+    }
+
+    fun performAction(action: Action) {
+        TODO("not implemented")
+    }
 
     override fun getGame(): Game {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
