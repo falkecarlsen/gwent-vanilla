@@ -60,7 +60,8 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         for (i in 0..2) {
             //TODO break if winner is found (maybe check edge-cases where winning player with 2 rounds has no more cards
             // but losing player is the only Might alignment, and will always win last round, such that they win 1 round)
-            var round: Round = Round(player1, player2, startingPlayer)
+            val round: Round = Round(player1, player2, startingPlayer)
+            round.playRound()
         }
     }
 
