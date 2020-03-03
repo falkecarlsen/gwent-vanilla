@@ -2,13 +2,13 @@ package gwent.vanilla.domain
 
 import kotlin.random.Random
 
-class Game constructor(override var players: List<Player>) : Gwent {
+class Game constructor(var player1: Player, var player2: Player) : Gwent {
 
-    override fun getGame(): Game {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getPlayers(): List<Player> {
+        return listOf(player1, player2)
     }
 
-    override fun getWinner(game: Game): Player? {
+    override fun getWinner(): Player? {
         val wonRoundsComparator = compareBy<Player> { it.wonRounds }
         val alignmentComparator = wonRoundsComparator.thenBy {
             when (it.alignment) {
@@ -17,44 +17,59 @@ class Game constructor(override var players: List<Player>) : Gwent {
             }
         }
 
-        return players.maxWith(alignmentComparator)
+        return listOf(player1, player2).maxWith(alignmentComparator)
     }
 
     fun playGame() {
         // Generate deck
         val deck = generateDeck()
         // Deal cards to both players
-        for (i in 0..23) {
-            if (i % 2 == 0) {
-                TODO("not implemented")
-            } else {
-                TODO("not implemented")
-            }
-        }
-        assert(deck.size == 30) { "Deal didn't go as planned" }
+        player1.hand.addAll(deck.subList(0, 12))
+        deck.removeAll(player1.hand)
+        player2.hand.addAll(deck.subList(13, 25))
+        deck.removeAll(player2.hand)
+        assert(deck.size == 30 && player1.hand.size == 12 && player2.hand.size == 13) { "Deal didn't go as planned" }
 
-        val startingPlayer: Player = players[flipCoin()]
+
+        val coinFlip = flipCoin()
+        val startingPlayer: Player = if (coinFlip) player1 else player2
 
         // Each player discards two cards
-        for (player in players) {
-            for (i in 0..1) {
-                discardCardFromHand(player)
-            }
-            assert(player.hand.size == 10) { "Discarding of two cards for each player didn't go as planned" }
+        for (i in 0..1) {
+            discardCardFromHand(player1)
         }
+        assert(player1.hand.size == 10) { "Discarding of two cards for player 1 didn't succeed" }
+        for (i in 0..1) {
+            discardCardFromHand(player2)
+        }
+        assert(player2.hand.size == 10) { "Discarding of two cards for player 1 didn't succeed" }
+
 
         // Choose alignments in order (starting player last for slight advantage)
+        if (coinFlip) {
+            // Choose alignment for player 2 first
+            chooseAlignment(player2, Alignment.Magic)
+            chooseAlignment(player1, Alignment.Magic)
+        } else {
+            // Choose alignment for player 1 first
+            chooseAlignment(player1, Alignment.Magic)
+            chooseAlignment(player2, Alignment.Magic)
+        }
 
         // Play three rounds or until a player has two wins
         for (i in 0..2) {
             //TODO break if winner is found (maybe check edge-cases where winning player with 2 rounds has no more cards
             // but losing player is the only Might alignment, and will always win last round, such that they win 1 round)
-            var round: Round = Round(players[0], players[1], startingPlayer)
+            var round: Round = Round(player1, player2, startingPlayer)
         }
     }
 
-    fun flipCoin(): Int {
-        return if (Random.nextBoolean()) 1 else 0
+    fun flipCoin(): Boolean {
+        return Random.nextBoolean()
+    }
+
+    override fun chooseAlignment(player: Player, alignment: Alignment) {
+        player.alignment = alignment
     }
 
     override fun getStartingPlayer(game: Game) {
@@ -66,10 +81,6 @@ class Game constructor(override var players: List<Player>) : Gwent {
     }
 
     override fun playCard(player: Player) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun chooseAlignment(player: Player) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

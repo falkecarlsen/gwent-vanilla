@@ -9,8 +9,9 @@ fun main() {
     val player1 = Player("La Primera")
     val player2 = Player("El Segundo")
 
-    var game = Game(listOf(player1, player2))
+    var game = Game(player1, player2)
     game.playGame()
+
 }
 
 
