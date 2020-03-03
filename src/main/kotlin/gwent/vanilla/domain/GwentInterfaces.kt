@@ -1,4 +1,4 @@
-package main.domain
+package gwent.vanilla.domain
 
 interface GwentView {
     val players: List<Player>

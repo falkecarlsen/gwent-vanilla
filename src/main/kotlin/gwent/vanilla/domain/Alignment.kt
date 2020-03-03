@@ -1,4 +1,4 @@
-package main.domain
+package gwent.vanilla.domain
 
 enum class Alignment {
     Might, Magic, Mind, Undecided

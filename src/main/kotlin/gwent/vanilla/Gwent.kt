@@ -1,8 +1,7 @@
-package main
+package gwent.vanilla
 
-import main.domain.*
-import kotlin.random.Random
-import kotlin.test.asserter
+import gwent.vanilla.domain.Game
+import gwent.vanilla.domain.Player
 
 fun main() {
     println("Starting Gwent backend")

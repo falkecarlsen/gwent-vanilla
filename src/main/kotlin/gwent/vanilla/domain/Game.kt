@@ -1,11 +1,10 @@
-package main.domain
+package gwent.vanilla.domain
 
 import kotlin.random.Random
-import kotlin.test.asserter
 
 class Game constructor(override var players: List<Player>) : Gwent {
 
-    override fun getGame(): main.domain.Game {
+    override fun getGame(): Game {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -32,7 +31,7 @@ class Game constructor(override var players: List<Player>) : Gwent {
                 TODO("not implemented")
             }
         }
-        asserter.assertTrue("Deal didn't go as planned", deck.size == 30)
+        assert(deck.size == 30) { "Deal didn't go as planned" }
 
         val startingPlayer: Player = players[flipCoin()]
 
@@ -41,10 +40,7 @@ class Game constructor(override var players: List<Player>) : Gwent {
             for (i in 0..1) {
                 discardCardFromHand(player)
             }
-            asserter.assertTrue(
-                "Discarding of two cards for each player didn't go as planned",
-                player.hand.size == 10
-            )
+            assert(player.hand.size == 10) { "Discarding of two cards for each player didn't go as planned" }
         }
 
         // Choose alignments in order (starting player last for slight advantage)
