@@ -1,8 +1,5 @@
 package gwent.vanilla.domain
 
-import gwent.vanilla.domain.Alignment
-import gwent.vanilla.domain.Spell
-
 data class Player constructor(
         val name: String,
         var wonRounds: Int = 0,

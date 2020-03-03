@@ -1,8 +1,5 @@
 package gwent.vanilla.domain
 
-import gwent.vanilla.domain.Board
-import gwent.vanilla.domain.Player
-
 data class Round(val player1: Player, val player2: Player, val startingplayer: Player) {
     var boards: Map<Player, Board> = mapOf(player1 to Board(), player2 to Board())
     var turn = 0

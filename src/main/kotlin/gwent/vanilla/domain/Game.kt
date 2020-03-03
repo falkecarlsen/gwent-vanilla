@@ -23,13 +23,13 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
     fun playGame() {
         // Generate deck
         val deck = generateDeck()
+
         // Deal cards to both players
         player1.hand.addAll(deck.subList(0, 12))
         deck.removeAll(player1.hand)
         player2.hand.addAll(deck.subList(13, 25))
         deck.removeAll(player2.hand)
         assert(deck.size == 30 && player1.hand.size == 12 && player2.hand.size == 13) { "Deal didn't go as planned" }
-
 
         val coinFlip = flipCoin()
         val startingPlayer: Player = if (coinFlip) player1 else player2
