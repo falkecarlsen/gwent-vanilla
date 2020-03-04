@@ -14,7 +14,7 @@ sealed class Action(val player: Player)
 class Mulligan(
         player: Player,
         val discardedCards: List<Spell>,
-        val allignment: Alignment
+        val alignment: Alignment
 ) : Action(player)
 
 /**
