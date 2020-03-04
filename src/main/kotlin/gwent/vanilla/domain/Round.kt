@@ -1,13 +1,13 @@
 package gwent.vanilla.domain
 
-data class Round(val player1: Player, val player2: Player, val startingplayer: Player) {
+data class Round(val player1: Player, val player2: Player, val startingPlayer: Player) {
     var boards: Map<Player, Board> = mapOf(player1 to Board(), player2 to Board())
     var turn = 0
     lateinit var lastPlayer: Player
 
     fun playRound() {
         if (player1.hasPassed() and player2.hasPassed()) {
-            boards.forEach { (_, board) -> board.calcPower() }
+            boards.values.forEach { it.calculateBoardPower() }
             decideWinner()
         } else if (player1.hasPassed()) {
             // let player2 play until pass
@@ -21,7 +21,7 @@ data class Round(val player1: Player, val player2: Player, val startingplayer: P
             }
         } else {
             if (turn == 0) {
-                playTurn(this.startingplayer)
+                playTurn(this.startingPlayer)
             } else {
                 // Do ordinary rounds
                 if (lastPlayer == player1) {
@@ -40,7 +40,7 @@ data class Round(val player1: Player, val player2: Player, val startingplayer: P
 
 
         // Calculate entire boards power after each card has mutated round
-        boards.forEach { (_, board) -> board.calcPower() }
+        boards.values.forEach { it.calculateBoardPower() }
 
         // Set player as lastPlayer
         lastPlayer = player
