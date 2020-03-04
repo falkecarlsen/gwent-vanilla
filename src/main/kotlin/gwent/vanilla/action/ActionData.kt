@@ -2,24 +2,39 @@ package gwent.vanilla.action
 
 import gwent.vanilla.domain.*
 
-sealed class ActionData(val player: Int)
+/**
+ * Raw representation of [Action] used for serialization.
+ */
+sealed class ActionData(open val player: Int)
 
-class MulliganData(
-        player: Int,
+/**
+ * Raw representation of [Mulligan] used for serialization.
+ */
+data class MulliganData(
+        override val player: Int,
         val discardedCards: List<Int>,
         val alignment: Alignment
 ) : ActionData(player)
 
-class MindDiscardData(
-        player: Int,
+/**
+ * Raw representation of [MindDiscard] used for serialization.
+ */
+data class MindDiscardData(
+        override val player: Int,
         val discardedCard: Int
 ) : ActionData(player)
 
-class PlayCardData(
-        player: Int,
+/**
+ * Raw representation of [PlayCard] used for serialization.
+ */
+data class PlayCardData(
+        override val player: Int,
         val card: Int,
         val row: RowSuit? = null,
         val target: Int? = null
 ) : ActionData(player)
 
-class PassData(player: Int) : ActionData(player)
+/**
+ * Raw representation of [Pass] used for serialization.
+ */
+data class PassData(override val player: Int) : ActionData(player)
