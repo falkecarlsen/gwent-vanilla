@@ -4,29 +4,29 @@ import com.beust.klaxon.*
 import kotlin.reflect.KClass
 
 /**
- * Class for capturing the polymorphism of [ActionData] and [Action]s in serialized format.
+ * Class for capturing the polymorphism of [Action]s in serialized format.
  * Typical use will look like this
  * ```
- * val actionData: ActionData = Klaxon().parse<JsonActionData>(json)!!.data
+ * val action: Action = Klaxon().parse<JsonAction>(json)!!.action
  * ```
  * See [Klaxon polymorphism](https://github.com/cbeust/klaxon#polymorphism)
  */
-class JsonActionData(
-        @TypeFor(field = "data", adapter = ActionAdapter::class)
-        val action: String,
-        val data: ActionData
+class JsonAction(
+        @TypeFor(field = "action", adapter = ActionAdapter::class)
+        val type: String,
+        val action: Action
 )
 
 /**
- * TypeAdapter for handling the polymorphism of [ActionData] and [Action]s.
+ * TypeAdapter for handling the polymorphism of [Action]s.
  * See [Klaxon polymorphism](https://github.com/cbeust/klaxon#polymorphism)
  */
-class ActionAdapter : TypeAdapter<ActionData> {
-    override fun classFor(type: Any): KClass<out ActionData> = when (type as String) {
-        "mulligan" -> MulliganData::class
-        "mind_discard" -> MindDiscardData::class
-        "play_card" -> PlayCardData::class
-        "pass" -> PassData::class
+class ActionAdapter : TypeAdapter<Action> {
+    override fun classFor(type: Any): KClass<out Action> = when (type as String) {
+        "mulligan" -> Mulligan::class
+        "mind_discard" -> MindDiscard::class
+        "play_card" -> PlayCard::class
+        "pass" -> Pass::class
         else -> throw KlaxonException("Unknown action type: $type")
     }
 }

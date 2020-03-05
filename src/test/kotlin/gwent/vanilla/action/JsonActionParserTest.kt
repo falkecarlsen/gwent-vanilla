@@ -8,19 +8,19 @@ import kotlin.test.assertEquals
 
 class JsonActionParserTest {
 
-    private fun parseJsonAction(json: String): ActionData = Klaxon().parse<JsonActionData>(json)!!.data
+    private fun parseJsonAction(json: String): Action = Klaxon().parse<JsonAction>(json)!!.action
 
     @Test
     fun pass01() {
         val action = parseJsonAction("""
             {
-                "action": "pass",
-                "data": {
+                "type": "pass",
+                "action": {
                     "player": 0
                 }
             }
         """.trimIndent())
-        val expected = PassData(0)
+        val expected = Pass(0)
         assertEquals(expected, action)
     }
 
@@ -28,15 +28,15 @@ class JsonActionParserTest {
     fun mulligan01() {
         val action = parseJsonAction("""
             {
-                "action": "mulligan",
-                "data": {
+                "type": "mulligan",
+                "action": {
                     "player": 0,
                     "alignment": "Mind",
                     "discardedCards": [ 3, 8 ]
                 }
             }
         """.trimIndent())
-        val expected = MulliganData(0, listOf(3, 8), Alignment.Mind)
+        val expected = Mulligan(0, listOf(3, 8), Alignment.Mind)
         assertEquals(expected, action)
     }
 
@@ -44,15 +44,15 @@ class JsonActionParserTest {
     fun mulligan02() {
         val action = parseJsonAction("""
             {
-                "action": "mulligan",
-                "data": {
+                "type": "mulligan",
+                "action": {
                     "player": 1,
                     "alignment": "Might",
                     "discardedCards": [ 0, 1, 2, 100 ]
                 }
             }
         """.trimIndent())
-        val expected = MulliganData(1, listOf(0, 1, 2, 100), Alignment.Might)
+        val expected = Mulligan(1, listOf(0, 1, 2, 100), Alignment.Might)
         assertEquals(expected, action)
     }
 
@@ -60,14 +60,14 @@ class JsonActionParserTest {
     fun mindDiscard01() {
         val action = parseJsonAction("""
             {
-                "action": "mind_discard",
-                "data": {
+                "type": "mind_discard",
+                "action": {
                     "player": 1,
                     "discardedCard": 5
                 }
             }
         """.trimIndent())
-        val expected = MindDiscardData(1, 5)
+        val expected = MindDiscard(1, 5)
         assertEquals(expected, action)
     }
 
@@ -75,8 +75,8 @@ class JsonActionParserTest {
     fun playCard01() {
         val action = parseJsonAction("""
             {
-                "action": "play_card",
-                "data": {
+                "type": "play_card",
+                "action": {
                     "player": 0,
                     "card": 11,
                     "row": "DIAMONDS",
@@ -84,7 +84,7 @@ class JsonActionParserTest {
                 }
             }
         """.trimIndent())
-        val expected = PlayCardData(0, 11, RowSuit.DIAMONDS, 4)
+        val expected = PlayCard(0, 11, RowSuit.DIAMONDS, 4)
         assertEquals(expected, action)
     }
 
@@ -92,14 +92,14 @@ class JsonActionParserTest {
     fun playCard02() {
         val action = parseJsonAction("""
             {
-                "action": "play_card",
-                "data": {
+                "type": "play_card",
+                "action": {
                     "player": 1,
                     "card": 0
                 }
             }
         """.trimIndent())
-        val expected = PlayCardData(1, 0)
+        val expected = PlayCard(1, 0)
         assertEquals(expected, action)
     }
 }
