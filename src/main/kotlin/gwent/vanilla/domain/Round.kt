@@ -9,7 +9,7 @@ data class Round(val player1: Player, val player2: Player, val startingplayer: P
     lateinit var lastPlayer: Player
 
     fun playRound() {
-        if (player1.hasPassed() and player2.hasPassed()) {
+        if (player1.hasPassed() && player2.hasPassed()) {
             decideWinner()
         } else if (player1.hasPassed()) {
             // let player2 play until pass
