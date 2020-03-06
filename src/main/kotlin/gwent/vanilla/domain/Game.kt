@@ -85,24 +85,25 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
                     if (playPhase.player1HasPassed && playPhase.player2HasPassed) {
                         // End of round phase
                         //TODO("check for winner and clear board")
-                        if (player1.wonRounds > 1) {
-                            phase = EndPhase(player1)
-                        } else if (player2.wonRounds > 1) {
-                            phase = EndPhase(player2)
-                        } else if (round == 2) {
-                            // Then no player has won more than 1 round and last round has been played
-                            phase = EndPhase(getWinner())
-                        } else {
-                            round += 1
-                            val tiebreaker = if (player1.alignment == Alignment.Might && player2.alignment != Alignment.Might) {
-                                player1
-                            } else if (player1.alignment != Alignment.Might && player2.alignment == Alignment.Might) {
-                                player2
-                            } else {
-                                if (playPhase.currentPlayer == player1) player2 else player1
+                        when {
+                            player1.wonRounds > 1 -> phase = EndPhase(player1)
+                            player2.wonRounds > 1 -> phase = EndPhase(player2)
+                            round == 2 -> {
+                                // No player has won more than 1 round and last round has been played
+                                phase = EndPhase(getWinner())
                             }
+                            else -> {
+                                round += 1
+                                val tiebreaker = if (player1.alignment == Alignment.Might && player2.alignment != Alignment.Might) {
+                                    player1
+                                } else if (player1.alignment != Alignment.Might && player2.alignment == Alignment.Might) {
+                                    player2
+                                } else {
+                                    if (playPhase.currentPlayer == player1) player2 else player1
+                                }
 
-                            phase = PlayPhase(currentPlayer = getWinner() ?: tiebreaker)
+                                phase = PlayPhase(currentPlayer = decideRoundWinner() ?: tiebreaker)
+                            }
                         }
                     }
                 }
@@ -111,29 +112,19 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
     }
 
     override fun getWinner(): Player? {
-        val wonRoundsComparator = compareBy<Player> { it.wonRounds }
-        val alignmentComparator = wonRoundsComparator.thenBy {
-            when (it.alignment) {
-                Alignment.Might -> 1
-                else -> 0
-            }
+        return when {
+            player1.wonRounds > player2.wonRounds -> player1
+            player1.wonRounds < player2.wonRounds -> player2
+            else -> null
         }
-
-        return listOf(player1, player2).maxWith(alignmentComparator)
     }
 
-    fun decideRoundWinner(): Player {
-        // tally power on both sides, if equal check for might alignment on either player
-
-        val totalPowerComparator = compareBy<Map.Entry<Player, Board>> { it.value.power }.thenBy {
-            when (it.key.alignment) {
-                Alignment.Might -> 1
-                else -> 0
-            }
+    fun decideRoundWinner(): Player? {
+        return when {
+            boards[player1]!!.power > boards[player2]!!.power -> player1
+            boards[player1]!!.power < boards[player2]!!.power -> player2
+            else -> null
         }
-
-        return boards.maxWith(totalPowerComparator)!!.key
-
     }
 
     private fun flipCoin(): Boolean {
