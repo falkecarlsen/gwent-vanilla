@@ -10,8 +10,7 @@ fun main() {
     val player2 = Player("El Segundo")
 
     var game = Game(player1, player2)
-    game.playGame()
-
+    // TODO setup listen loop for actions from middleware/client
 }
 
 

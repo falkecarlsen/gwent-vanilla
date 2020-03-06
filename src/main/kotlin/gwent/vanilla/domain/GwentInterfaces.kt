@@ -3,7 +3,6 @@ package gwent.vanilla.domain
 interface GwentView {
     fun getPlayers(): List<Player>
     fun getWinner(): Player?
-    fun getStartingPlayer(game: Game)
 }
 
 interface GwentInteract {
@@ -11,7 +10,7 @@ interface GwentInteract {
     fun playCard(player: Player)
     fun chooseAlignment(player: Player, alignment: Alignment)
     fun pass(player: Player)
-    fun discardCardFromHand(player: Player)
+    fun discardCardFromHand(player: Player, spell: Spell)
 }
 
 interface GwentSetup {

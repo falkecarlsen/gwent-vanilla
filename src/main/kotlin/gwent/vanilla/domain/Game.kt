@@ -1,13 +1,25 @@
 package gwent.vanilla.domain
 
-import gwent.vanilla.action.Action
+import gwent.vanilla.action.*
 import kotlin.random.Random
 
 class Game constructor(var player1: Player, var player2: Player) : Gwent {
+    var phase: Phase = SetupPhase()
+    val deck: MutableList<Spell> = generateDeck()
+    val coinFlip = flipCoin()
+    val startingPlayer: Player = if (coinFlip) player1 else player2
+    var round: Int = -1
+    val boards: MutableMap<Player, Board> = mutableMapOf()
 
-    override fun getPlayers(): List<Player> {
-        return listOf(player1, player2)
+    init {
+        // Deal cards to both players
+        player1.hand.addAll(deck.subList(0, 12))
+        deck.removeAll(player1.hand)
+        player2.hand.addAll(deck.subList(13, 25))
+        deck.removeAll(player2.hand)
+        assert(deck.size == 30 && player1.hand.size == 12 && player2.hand.size == 13) { "Deal didn't go as planned" }
 
+        phase = MulliganPhase(coinFlip, 2, 2)
     }
 
     fun isActionValid(action: Action): Boolean {
@@ -15,7 +27,87 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
     }
 
     fun performAction(action: Action) {
-        TODO("not implemented")
+        if (isActionValid(action)) {
+            when (action) {
+                is Mulligan -> {
+                    // Each player discards two cards
+                    val mulliganPhase = phase as MulliganPhase
+                    for (spell in action.discardedCards) {
+                        discardCardFromHand(action.player, spell)
+                        if (action.player == player1) {
+                            mulliganPhase.player1DiscardsRemaining--
+                        } else {
+                            mulliganPhase.player2DiscardsRemaining--
+                        }
+                    }
+
+                    chooseAlignment(action.player, action.alignment)
+
+                    if (mulliganPhase.secondPlayerHasChosenAlignment) {
+                        phase = if (listOf(player1, player2).any { it.alignment == Alignment.Mind }) {
+                            MindPhase(
+                                    if (player1.alignment == Alignment.Mind) 1 else 0,
+                                    if (player2.alignment == Alignment.Mind) 1 else 0
+                            )
+                        } else {
+                            round = 0
+                            PlayPhase(currentPlayer = startingPlayer)
+                        }
+                    } else {
+                        mulliganPhase.secondPlayerHasChosenAlignment = true
+                    }
+                }
+                is MindDiscard -> {
+                    val mindPhase = phase as MindPhase
+
+                    discardCardFromHand(action.player, action.discardedCard)
+                    if (action.player == player1) {
+                        mindPhase.player1DiscardsRemaining--
+                    } else {
+                        mindPhase.player2DiscardsRemaining--
+                    }
+
+                    if (mindPhase.player1DiscardsRemaining == 0 && mindPhase.player2DiscardsRemaining == 0) {
+                        round += 1
+                        phase = PlayPhase(currentPlayer = startingPlayer, round = round + 1)
+                    }
+                }
+                is PlayCard -> TODO()
+                is Pass -> {
+                    val playPhase = phase as PlayPhase
+                    action.player.pass()
+                    if (action.player == player1) {
+                        playPhase.player1HasPassed = true
+                    } else {
+                        playPhase.player2HasPassed = true
+                    }
+
+                    if (playPhase.player1HasPassed && playPhase.player2HasPassed) {
+                        // End of round phase
+                        //TODO("check for winner and clear board")
+                        if (player1.wonRounds > 1) {
+                            phase = EndPhase(player1)
+                        } else if (player2.wonRounds > 1) {
+                            phase = EndPhase(player2)
+                        } else if (round == 2) {
+                            // Then no player has won more than 1 round and last round has been played
+                            phase = EndPhase(getWinner())
+                        } else {
+                            round += 1
+                            val tiebreaker = if (player1.alignment == Alignment.Might && player2.alignment != Alignment.Might) {
+                                player1
+                            } else if (player1.alignment != Alignment.Might && player2.alignment == Alignment.Might) {
+                                player2
+                            } else {
+                                if (playPhase.currentPlayer == player1) player2 else player1
+                            }
+
+                            phase = PlayPhase(currentPlayer = getWinner() ?: tiebreaker)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun getWinner(): Player? {
@@ -30,61 +122,30 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         return listOf(player1, player2).maxWith(alignmentComparator)
     }
 
-    fun playGame() {
-        // Generate deck
-        val deck = generateDeck()
+    fun decideRoundWinner(): Player {
+        // tally power on both sides, if equal check for might alignment on either player
 
-        // Deal cards to both players
-        player1.hand.addAll(deck.subList(0, 12))
-        deck.removeAll(player1.hand)
-        player2.hand.addAll(deck.subList(13, 25))
-        deck.removeAll(player2.hand)
-        assert(deck.size == 30 && player1.hand.size == 12 && player2.hand.size == 13) { "Deal didn't go as planned" }
-
-        val coinFlip = flipCoin()
-        val startingPlayer: Player = if (coinFlip) player1 else player2
-
-        // Each player discards two cards
-        for (i in 0..1) {
-            discardCardFromHand(player1)
-        }
-        assert(player1.hand.size == 10) { "Discarding of two cards for player 1 didn't succeed" }
-        for (i in 0..1) {
-            discardCardFromHand(player2)
-        }
-        assert(player2.hand.size == 10) { "Discarding of two cards for player 1 didn't succeed" }
-
-
-        // Choose alignments in order (starting player last for slight advantage)
-        if (coinFlip) {
-            // Choose alignment for player 2 first
-            chooseAlignment(player2, Alignment.Magic)
-            chooseAlignment(player1, Alignment.Magic)
-        } else {
-            // Choose alignment for player 1 first
-            chooseAlignment(player1, Alignment.Magic)
-            chooseAlignment(player2, Alignment.Magic)
+        val totalPowerComparator = compareBy<Map.Entry<Player, Board>> { it.value.power }.thenBy {
+            when (it.key.alignment) {
+                Alignment.Might -> 1
+                else -> 0
+            }
         }
 
-        // Play three rounds or until a player has two wins
-        for (i in 0..2) {
-            //TODO break if winner is found (maybe check edge-cases where winning player with 2 rounds has no more cards
-            // but losing player is the only Might alignment, and will always win last round, such that they win 1 round)
-            val round: Round = Round(player1, player2, startingPlayer)
-            round.playRound()
-        }
+        return boards.maxWith(totalPowerComparator)!!.key
+
     }
 
-    fun flipCoin(): Boolean {
+    private fun flipCoin(): Boolean {
         return Random.nextBoolean()
+    }
+
+    override fun getPlayers(): List<Player> {
+        return listOf(player1, player2)
     }
 
     override fun chooseAlignment(player: Player, alignment: Alignment) {
         player.alignment = alignment
-    }
-
-    override fun getStartingPlayer(game: Game) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getHand(player: Player) {
@@ -99,7 +160,7 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         player.pass()
     }
 
-    override fun discardCardFromHand(player: Player) {
+    override fun discardCardFromHand(player: Player, spell: Spell) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
