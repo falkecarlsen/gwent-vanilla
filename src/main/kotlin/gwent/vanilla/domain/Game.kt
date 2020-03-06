@@ -9,7 +9,11 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
     val coinFlip = flipCoin()
     val startingPlayer: Player = if (coinFlip) player1 else player2
     var round: Int = -1
-    val boards: MutableMap<Player, Board> = mutableMapOf()
+    var weatherEffects: Map<RowSuit, Boolean> = mapOf(
+            RowSuit.DIAMONDS to false,
+            RowSuit.CLUBS to false,
+            RowSuit.SPADES to false
+    )
 
     init {
         // Deal cards to both players
@@ -121,9 +125,28 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
 
     fun decideRoundWinner(): Player? {
         return when {
-            boards[player1]!!.power > boards[player2]!!.power -> player1
-            boards[player1]!!.power < boards[player2]!!.power -> player2
+            player1.board.power > player2.board.power -> player1
+            player1.board.power < player2.board.power -> player2
             else -> null
+        }
+    }
+
+    fun calculatePower(game: Game) {
+
+        //per player, per board, per row, per card
+
+        for (player in listOf(player1, player2)) {
+            player.board.power = 0
+            for (row in player.board.rows) {
+                for (creature in row.value.cards) {
+                    var cardPower = creature.creatureType.power()
+                    if (weatherEffects[row.key]!!) {
+                        cardPower = 2
+                    }
+                    // TODO picture-cards, seer-buff
+                    player.board.power += cardPower * creature.empowerMultiplier
+                }
+            }
         }
     }
 

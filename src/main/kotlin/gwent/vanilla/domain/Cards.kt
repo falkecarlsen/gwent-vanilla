@@ -4,7 +4,7 @@ package gwent.vanilla.domain
 
 class Creature(val creatureType: CreatureType, var empowerMultiplier: Int = 1)
 
-sealed class CreatureType(suit: Suit, power: (/* TODO Relevant data (Board?) */) -> Int)
+sealed class CreatureType(val suit: Suit, val power: (/* TODO Relevant data (Board?) */) -> Int)
 
 object CREATURE_SPADES_3 : CreatureType(Suit.Spades, { 3 /* TODO Multiply with number of 3s */ })
 object CREATURE_SPADES_4 : CreatureType(Suit.Spades, { 4 })
