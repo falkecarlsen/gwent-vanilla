@@ -1,11 +1,21 @@
 package gwent.vanilla.domain
 
+import gwent.vanilla.action.Action
 import kotlin.random.Random
 
 class Game constructor(var player1: Player, var player2: Player) : Gwent {
 
     override fun getPlayers(): List<Player> {
         return listOf(player1, player2)
+
+    }
+
+    fun isActionValid(action: Action): Boolean {
+        TODO("not implemented")
+    }
+
+    fun performAction(action: Action) {
+        TODO("not implemented")
     }
 
     override fun getWinner(): Player? {
