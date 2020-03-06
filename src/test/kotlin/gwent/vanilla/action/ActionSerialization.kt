@@ -6,7 +6,7 @@ import gwent.vanilla.domain.RowSuit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class JsonActionParserTest {
+class ActionSerialization {
 
     private fun parseJsonAction(json: String): Action = Klaxon().parse<Action>(json)!!
 
