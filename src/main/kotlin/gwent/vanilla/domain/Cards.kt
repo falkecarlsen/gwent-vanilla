@@ -2,7 +2,11 @@ package gwent.vanilla.domain
 
 // ============ CREATURES ==========
 
-class Creature(val creatureType: CreatureType, var empowerMultiplier: Int = 1)
+class Creature(val creatureType: CreatureType) {
+    var row: Row? = null
+    var empowerMultiplier = 1
+    var currentPower = 0
+}
 
 sealed class CreatureType(val suit: Suit, val picture: Boolean, val power: (/* TODO Relevant data (Board?) */) -> Int)
 
@@ -66,7 +70,7 @@ sealed class SimpleSpell(val cast: (Map<Player, Board>, Player) -> Unit) : Spell
 sealed class CreatureSpell(val cast: (Creature, Map<Player, Board>, Player) -> Unit) : SpellType()
 sealed class RowSpell(val cast: (RowSuit, Map<Player, Board>, Player) -> Unit) : SpellType()
 
-object SPELL_SPADES_ACE : SimpleSpell({ boards, player -> /* TODO Destroy biggest spade creatures */ })
+object SPELL_SPADES_ACE : SimpleSpell({ boards, player -> scorch(boards, RowSuit.SPADES) })
 object SPELL_SPADES_2 : SimpleSpell({ boards, player -> /* TODO Add weather effect to spade rows */ })
 object SPELL_SPADES_3 : SimpleSpell({ boards, player -> summon(CREATURE_SPADES_5, RowSuit.SPADES, boards, player) })
 object SPELL_SPADES_4 : SimpleSpell({ boards, player -> summon(CREATURE_SPADES_5, RowSuit.SPADES, boards, player) /* TODO Gain info on enemy cards */ })
@@ -80,7 +84,7 @@ object SPELL_SPADES_JACK : SimpleSpell({ boards, player -> summon(CREATURE_SPADE
 object SPELL_SPADES_QUEEN : SimpleSpell({ boards, player -> summon(CREATURE_SPADES_5, RowSuit.SPADES, boards, player) /* TODO Make sure there are no other queens */ })
 object SPELL_SPADES_KING : SimpleSpell({ boards, player -> summon(CREATURE_SPADES_5, RowSuit.SPADES, boards, player) })
 
-object SPELL_CLUBS_ACE : SimpleSpell({ boards, player -> /* TODO Destroy biggest spade creatures */ })
+object SPELL_CLUBS_ACE : SimpleSpell({ boards, player -> scorch(boards, RowSuit.CLUBS) })
 object SPELL_CLUBS_2 : SimpleSpell({ boards, player -> /* TODO Add weather effect to spade rows */ })
 object SPELL_CLUBS_3 : SimpleSpell({ boards, player -> summon(CREATURE_CLUBS_5, RowSuit.CLUBS, boards, player) })
 object SPELL_CLUBS_4 : SimpleSpell({ boards, player -> summon(CREATURE_CLUBS_5, RowSuit.CLUBS, boards, player) /* TODO Gain info on enemy cards */ })
@@ -94,7 +98,7 @@ object SPELL_CLUBS_JACK : SimpleSpell({ boards, player -> summon(CREATURE_CLUBS_
 object SPELL_CLUBS_QUEEN : SimpleSpell({ boards, player -> summon(CREATURE_CLUBS_5, RowSuit.CLUBS, boards, player) /* TODO Make sure there are no other queens */ })
 object SPELL_CLUBS_KING : SimpleSpell({ boards, player -> summon(CREATURE_CLUBS_5, RowSuit.CLUBS, boards, player) })
 
-object SPELL_DIAMONDS_ACE : SimpleSpell({ boards, player -> /* TODO Destroy biggest spade creatures */ })
+object SPELL_DIAMONDS_ACE : SimpleSpell({ boards, player -> scorch(boards, RowSuit.DIAMONDS) })
 object SPELL_DIAMONDS_2 : SimpleSpell({ boards, player -> /* TODO Add weather effect to spade rows */ })
 object SPELL_DIAMONDS_3 : SimpleSpell({ boards, player -> summon(CREATURE_DIAMONDS_5, RowSuit.DIAMONDS, boards, player) })
 object SPELL_DIAMONDS_4 : SimpleSpell({ boards, player -> summon(CREATURE_DIAMONDS_5, RowSuit.DIAMONDS, boards, player) /* TODO Gain info on enemy cards */ })
@@ -108,7 +112,7 @@ object SPELL_DIAMONDS_JACK : SimpleSpell({ boards, player -> summon(CREATURE_DIA
 object SPELL_DIAMONDS_QUEEN : SimpleSpell({ boards, player -> summon(CREATURE_DIAMONDS_5, RowSuit.DIAMONDS, boards, player) /* TODO Make sure there are no other queens */ })
 object SPELL_DIAMONDS_KING : SimpleSpell({ boards, player -> summon(CREATURE_DIAMONDS_5, RowSuit.DIAMONDS, boards, player) })
 
-object SPELL_HEARTS_ACE : SimpleSpell({ boards, player -> /* TODO Destroy biggest spade creatures */ })
+object SPELL_HEARTS_ACE : SimpleSpell({ boards, player -> scorch(boards, null) })
 object SPELL_HEARTS_2 : SimpleSpell({ boards, player -> /* TODO Add weather effect to spade rows */ })
 object SPELL_HEARTS_3 : RowSpell({ row, boards, player -> summon(CREATURE_HEARTS_5, row, boards, player) })
 object SPELL_HEARTS_4 : RowSpell({ row, boards, player -> summon(CREATURE_HEARTS_5, row, boards, player) /* TODO Gain info on enemy cards */ })
@@ -129,6 +133,32 @@ object SPELL_HEARTS_KING : RowSpell({ row, boards, player -> summon(CREATURE_HEA
 
 object SPELL_JOKER : CreatureSpell({ creature, _, _ -> creature.empowerMultiplier += 1 })
 
+/**
+ * Summons a creature of the given type in the given row of the given player.
+ */
 fun summon(creatureType: CreatureType, rowSuit: RowSuit, boards: Map<Player, Board>, player: Player) {
     boards[player]!!.addCreature(Creature(creatureType), rowSuit)
+}
+
+/**
+ * Destroys the creature(s) with the greatest power in the given row suit. If no row is given
+ * all rows are affected. Kings are immune and therefore ignored.
+ */
+fun scorch(boards: Map<Player, Board>, rowFilter: RowSuit?) {
+    val immuneCreatureTypes = listOf(CREATURE_CLUBS_KING, CREATURE_DIAMONDS_KING, CREATURE_SPADES_KING, CREATURE_HEARTS_KING)
+
+    // Find all creatures to consider
+    val candidates = boards.values.flatMap {
+        if (rowFilter == null) it.rows.values.flatMap { it.cards }
+        else it.rows[rowFilter]!!.cards
+    }.filter { it.creatureType !in immuneCreatureTypes}
+
+    // Remove the creature(s) with the greatest power
+    val greatestPower = candidates.map { it.currentPower }.max()
+    if (greatestPower != null) {
+        val creaturesToRemove = candidates.filter { it.currentPower == greatestPower }
+        for (creature in creaturesToRemove) {
+            creature.row!!.removeCreature(creature)
+        }
+    }
 }

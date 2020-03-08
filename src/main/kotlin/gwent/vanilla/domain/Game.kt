@@ -147,7 +147,8 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
                         cardPower += 2
                     }
                     // TODO Seer-buff
-                    player.board.power += cardPower * creature.empowerMultiplier
+                    creature.currentPower = cardPower * creature.empowerMultiplier
+                    player.board.power += creature.currentPower
                 }
             }
         }
