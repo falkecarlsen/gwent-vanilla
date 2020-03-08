@@ -143,7 +143,10 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
                     if (weatherEffects[row.key]!!) {
                         cardPower = 2
                     }
-                    // TODO picture-cards, seer-buff
+                    if (player.alignment == Alignment.Might && creature.creatureType.picture) {
+                        cardPower += 2
+                    }
+                    // TODO Seer-buff
                     player.board.power += cardPower * creature.empowerMultiplier
                 }
             }
