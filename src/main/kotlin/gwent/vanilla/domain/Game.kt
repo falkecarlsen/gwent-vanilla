@@ -33,83 +33,109 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
     fun performAction(action: Action) {
         if (isActionValid(action)) {
             when (action) {
-                is Mulligan -> {
-                    // Each player discards two cards
-                    val mulliganPhase = phase as MulliganPhase
-                    for (spell in action.discardedCards) {
-                        discardCardFromHand(action.player, spell)
-                        if (action.player == player1) {
-                            mulliganPhase.player1DiscardsRemaining--
-                        } else {
-                            mulliganPhase.player2DiscardsRemaining--
-                        }
-                    }
+                is Mulligan -> performMulligan(action)
+                is MindDiscard -> performMindDiscard(action)
+                is PlayCard -> performPlayCard(action)
+                is Pass -> performPass(action)
+            }
+        }
+    }
 
-                    chooseAlignment(action.player, action.alignment)
+    private fun performMulligan(action: Mulligan) {
+        val mulliganPhase = phase as MulliganPhase
 
-                    if (mulliganPhase.secondPlayerHasChosenAlignment) {
-                        phase = if (listOf(player1, player2).any { it.alignment == Alignment.Mind }) {
-                            MindPhase(
-                                    if (player1.alignment == Alignment.Mind) 1 else 0,
-                                    if (player2.alignment == Alignment.Mind) 1 else 0
-                            )
-                        } else {
-                            round = 0
-                            PlayPhase(currentPlayer = startingPlayer)
-                        }
-                    } else {
-                        mulliganPhase.secondPlayerHasChosenAlignment = true
-                    }
+        // Discard card(s) and update mulligan phase
+        for (spell in action.discardedCards) {
+            discardCardFromHand(action.player, spell)
+            if (action.player == player1) {
+                mulliganPhase.player1DiscardsRemaining--
+            } else {
+                mulliganPhase.player2DiscardsRemaining--
+            }
+        }
+
+        // Choose alignment
+        chooseAlignment(action.player, action.alignment)
+
+        if (mulliganPhase.secondPlayerHasChosenAlignment) {
+
+            // Mulligan is done
+            // If any player chose Mind as alignment, go to Mind phase, otherwise go to play phase
+            phase = if (listOf(player1, player2).any { it.alignment == Alignment.Mind }) {
+                MindPhase(
+                        if (player1.alignment == Alignment.Mind) 1 else 0,
+                        if (player2.alignment == Alignment.Mind) 1 else 0
+                )
+            } else {
+                round = 0
+                PlayPhase(currentPlayer = startingPlayer)
+            }
+        } else {
+            // One player (the second player) is done mulliganing
+            mulliganPhase.secondPlayerHasChosenAlignment = true
+        }
+    }
+
+    private fun performMindDiscard(action: MindDiscard) {
+        val mindPhase = phase as MindPhase
+
+        // Discard card
+        discardCardFromHand(action.player, action.discardedCard)
+        if (action.player == player1) {
+            mindPhase.player1DiscardsRemaining--
+        } else {
+            mindPhase.player2DiscardsRemaining--
+        }
+
+        // If both players are done discarding due to Mind, go to play phase
+        if (mindPhase.player1DiscardsRemaining == 0 && mindPhase.player2DiscardsRemaining == 0) {
+            round += 1
+            phase = PlayPhase(currentPlayer = startingPlayer, round = round + 1)
+        }
+    }
+
+    private fun performPlayCard(action: PlayCard) {
+        TODO()
+    }
+
+    private fun performPass(action: Pass) {
+        val playPhase = phase as PlayPhase
+
+        // Mark that the player has passed
+        action.player.pass()
+        if (action.player == player1) {
+            playPhase.player1HasPassed = true
+        } else {
+            playPhase.player2HasPassed = true
+        }
+
+        // If both players has passed, the round ends
+        if (playPhase.player1HasPassed && playPhase.player2HasPassed) {
+
+            // TODO("check for winner and clear board")
+
+            when {
+                // If a player has won more than two rounds they win
+                player1.wonRounds > 1 -> phase = EndPhase(player1)
+                player2.wonRounds > 1 -> phase = EndPhase(player2)
+                // This was last round yet no one has won two rounds => we have a tie
+                round == 2 -> {
+                    // No player has won more than 1 round and last round has been played
+                    phase = EndPhase(getWinner())
                 }
-                is MindDiscard -> {
-                    val mindPhase = phase as MindPhase
-
-                    discardCardFromHand(action.player, action.discardedCard)
-                    if (action.player == player1) {
-                        mindPhase.player1DiscardsRemaining--
+                else -> {
+                    // Decide who starts next round (usually the winner)
+                    val tiebreaker = if (player1.alignment == Alignment.Might && player2.alignment != Alignment.Might) {
+                        player1
+                    } else if (player1.alignment != Alignment.Might && player2.alignment == Alignment.Might) {
+                        player2
                     } else {
-                        mindPhase.player2DiscardsRemaining--
+                        if (playPhase.currentPlayer == player1) player2 else player1
                     }
 
-                    if (mindPhase.player1DiscardsRemaining == 0 && mindPhase.player2DiscardsRemaining == 0) {
-                        round += 1
-                        phase = PlayPhase(currentPlayer = startingPlayer, round = round + 1)
-                    }
-                }
-                is PlayCard -> TODO()
-                is Pass -> {
-                    val playPhase = phase as PlayPhase
-                    action.player.pass()
-                    if (action.player == player1) {
-                        playPhase.player1HasPassed = true
-                    } else {
-                        playPhase.player2HasPassed = true
-                    }
-
-                    if (playPhase.player1HasPassed && playPhase.player2HasPassed) {
-                        // End of round phase
-                        //TODO("check for winner and clear board")
-                        when {
-                            player1.wonRounds > 1 -> phase = EndPhase(player1)
-                            player2.wonRounds > 1 -> phase = EndPhase(player2)
-                            round == 2 -> {
-                                // No player has won more than 1 round and last round has been played
-                                phase = EndPhase(getWinner())
-                            }
-                            else -> {
-                                round += 1
-                                val tiebreaker = if (player1.alignment == Alignment.Might && player2.alignment != Alignment.Might) {
-                                    player1
-                                } else if (player1.alignment != Alignment.Might && player2.alignment == Alignment.Might) {
-                                    player2
-                                } else {
-                                    if (playPhase.currentPlayer == player1) player2 else player1
-                                }
-
-                                phase = PlayPhase(currentPlayer = decideRoundWinner() ?: tiebreaker)
-                            }
-                        }
-                    }
+                    // Go to next round
+                    round += 1
+                    phase = PlayPhase(currentPlayer = decideRoundWinner() ?: tiebreaker)
                 }
             }
         }
@@ -124,6 +150,7 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
     }
 
     fun decideRoundWinner(): Player? {
+        // TODO Consider Might
         return when {
             player1.board.power > player2.board.power -> player1
             player1.board.power < player2.board.power -> player2
