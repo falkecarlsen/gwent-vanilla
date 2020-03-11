@@ -1,6 +1,6 @@
 package gwent.vanilla.domain
 
-data class Player constructor(val name: String) {
+data class Player constructor(val id: Int, val name: String) {
     var wonRounds: Int = 0
     var hand: MutableList<Spell> = mutableListOf()
     var alignment: Alignment = Alignment.Undecided

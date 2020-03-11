@@ -3,7 +3,10 @@ package gwent.vanilla.domain
 import gwent.vanilla.action.*
 import kotlin.random.Random
 
-class Game constructor(var player1: Player, var player2: Player) : Gwent {
+class Game constructor(player1Name: String, player2Name: String) {
+    val player1 = Player(0, player1Name)
+    val player2 = Player(1, player2Name)
+    val players = listOf(player1, player2)
     var phase: Phase = SetupPhase()
     val deck: MutableList<Spell> = generateDeck()
     val coinFlip = flipCoin()
@@ -46,8 +49,8 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
 
         // Discard card(s) and update mulligan phase
         for (spell in action.discardedCards) {
-            discardCardFromHand(action.player, spell)
-            if (action.player == player1) {
+            discardCardFromHand(players[action.player], spell)
+            if (action.player == player1.id) {
                 mulliganPhase.player1DiscardsRemaining--
             } else {
                 mulliganPhase.player2DiscardsRemaining--
@@ -55,7 +58,7 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         }
 
         // Choose alignment
-        chooseAlignment(action.player, action.alignment)
+        players[action.player].alignment = action.alignment
 
         if (mulliganPhase.secondPlayerHasChosenAlignment) {
 
@@ -80,8 +83,8 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         val mindPhase = phase as MindPhase
 
         // Discard card
-        discardCardFromHand(action.player, action.discardedCard)
-        if (action.player == player1) {
+        discardCardFromHand(players[action.player], action.discardedCard)
+        if (action.player == player1.id) {
             mindPhase.player1DiscardsRemaining--
         } else {
             mindPhase.player2DiscardsRemaining--
@@ -102,8 +105,8 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         val playPhase = phase as PlayPhase
 
         // Mark that the player has passed
-        action.player.pass()
-        if (action.player == player1) {
+        players[action.player].pass()
+        if (action.player == player1.id) {
             playPhase.player1HasPassed = true
         } else {
             playPhase.player2HasPassed = true
@@ -141,7 +144,7 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         }
     }
 
-    override fun getWinner(): Player? {
+    fun getWinner(): Player? {
         return when {
             player1.wonRounds > player2.wonRounds -> player1
             player1.wonRounds < player2.wonRounds -> player2
@@ -185,94 +188,69 @@ class Game constructor(var player1: Player, var player2: Player) : Gwent {
         return Random.nextBoolean()
     }
 
-    override fun getPlayers(): List<Player> {
-        return listOf(player1, player2)
-    }
-
-    override fun chooseAlignment(player: Player, alignment: Alignment) {
-        player.alignment = alignment
-    }
-
-    override fun getHand(player: Player) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun playCard(player: Player) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun pass(player: Player) {
-        player.pass()
-    }
-
-    override fun discardCardFromHand(player: Player, spell: Spell) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun createPlayer(): Player {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun setupGame(): Game {
+    fun discardCardFromHand(player: Player, spellId: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     fun generateDeck(): MutableList<Spell> {
-        return mutableListOf(
-                Spell(SPELL_SPADES_ACE),
-                Spell(SPELL_SPADES_2),
-                Spell(SPELL_SPADES_3),
-                Spell(SPELL_SPADES_4),
-                Spell(SPELL_SPADES_5),
-                Spell(SPELL_SPADES_6),
-                Spell(SPELL_SPADES_7),
-                Spell(SPELL_SPADES_8),
-                Spell(SPELL_SPADES_9),
-                Spell(SPELL_SPADES_10),
-                Spell(SPELL_SPADES_JACK),
-                Spell(SPELL_SPADES_QUEEN),
-                Spell(SPELL_SPADES_KING),
-                Spell(SPELL_CLUBS_ACE),
-                Spell(SPELL_CLUBS_2),
-                Spell(SPELL_CLUBS_3),
-                Spell(SPELL_CLUBS_4),
-                Spell(SPELL_CLUBS_5),
-                Spell(SPELL_CLUBS_6),
-                Spell(SPELL_CLUBS_7),
-                Spell(SPELL_CLUBS_8),
-                Spell(SPELL_CLUBS_9),
-                Spell(SPELL_CLUBS_10),
-                Spell(SPELL_CLUBS_JACK),
-                Spell(SPELL_CLUBS_QUEEN),
-                Spell(SPELL_CLUBS_KING),
-                Spell(SPELL_DIAMONDS_ACE),
-                Spell(SPELL_DIAMONDS_2),
-                Spell(SPELL_DIAMONDS_3),
-                Spell(SPELL_DIAMONDS_4),
-                Spell(SPELL_DIAMONDS_5),
-                Spell(SPELL_DIAMONDS_6),
-                Spell(SPELL_DIAMONDS_7),
-                Spell(SPELL_DIAMONDS_8),
-                Spell(SPELL_DIAMONDS_9),
-                Spell(SPELL_DIAMONDS_10),
-                Spell(SPELL_DIAMONDS_JACK),
-                Spell(SPELL_DIAMONDS_QUEEN),
-                Spell(SPELL_DIAMONDS_KING),
-                Spell(SPELL_HEARTS_ACE),
-                Spell(SPELL_HEARTS_2),
-                Spell(SPELL_HEARTS_3),
-                Spell(SPELL_HEARTS_4),
-                Spell(SPELL_HEARTS_5),
-                Spell(SPELL_HEARTS_6),
-                Spell(SPELL_HEARTS_7),
-                Spell(SPELL_HEARTS_8),
-                Spell(SPELL_HEARTS_9),
-                Spell(SPELL_HEARTS_10),
-                Spell(SPELL_HEARTS_JACK),
-                Spell(SPELL_HEARTS_QUEEN),
-                Spell(SPELL_HEARTS_KING),
-                Spell(SPELL_JOKER),
-                Spell(SPELL_JOKER)
-        ).also { it.shuffle() }
+        return listOf(
+                SPELL_SPADES_ACE,
+                SPELL_SPADES_2,
+                SPELL_SPADES_3,
+                SPELL_SPADES_4,
+                SPELL_SPADES_5,
+                SPELL_SPADES_6,
+                SPELL_SPADES_7,
+                SPELL_SPADES_8,
+                SPELL_SPADES_9,
+                SPELL_SPADES_10,
+                SPELL_SPADES_JACK,
+                SPELL_SPADES_QUEEN,
+                SPELL_SPADES_KING,
+                SPELL_CLUBS_ACE,
+                SPELL_CLUBS_2,
+                SPELL_CLUBS_3,
+                SPELL_CLUBS_4,
+                SPELL_CLUBS_5,
+                SPELL_CLUBS_6,
+                SPELL_CLUBS_7,
+                SPELL_CLUBS_8,
+                SPELL_CLUBS_9,
+                SPELL_CLUBS_10,
+                SPELL_CLUBS_JACK,
+                SPELL_CLUBS_QUEEN,
+                SPELL_CLUBS_KING,
+                SPELL_DIAMONDS_ACE,
+                SPELL_DIAMONDS_2,
+                SPELL_DIAMONDS_3,
+                SPELL_DIAMONDS_4,
+                SPELL_DIAMONDS_5,
+                SPELL_DIAMONDS_6,
+                SPELL_DIAMONDS_7,
+                SPELL_DIAMONDS_8,
+                SPELL_DIAMONDS_9,
+                SPELL_DIAMONDS_10,
+                SPELL_DIAMONDS_JACK,
+                SPELL_DIAMONDS_QUEEN,
+                SPELL_DIAMONDS_KING,
+                SPELL_HEARTS_ACE,
+                SPELL_HEARTS_2,
+                SPELL_HEARTS_3,
+                SPELL_HEARTS_4,
+                SPELL_HEARTS_5,
+                SPELL_HEARTS_6,
+                SPELL_HEARTS_7,
+                SPELL_HEARTS_8,
+                SPELL_HEARTS_9,
+                SPELL_HEARTS_10,
+                SPELL_HEARTS_JACK,
+                SPELL_HEARTS_QUEEN,
+                SPELL_HEARTS_KING,
+                SPELL_JOKER,
+                SPELL_JOKER
+        )
+                .mapIndexed { id, type -> Spell(id, type) }
+                .mapTo(mutableListOf()) { it }
+                .also { it.shuffle() }
     }
 }

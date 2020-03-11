@@ -1,6 +1,6 @@
 package gwent.vanilla.domain
 
-class Spell(val cardType: SpellType)
+class Spell(val id: Int, val cardType: SpellType)
 
 enum class RowSuit { SPADES, DIAMONDS, CLUBS }
 
