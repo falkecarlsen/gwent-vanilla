@@ -1,3 +1,10 @@
 package gwent.vanilla.domain
 
-data class Board(var rows: List<Row> = mutableListOf(), var power: Int = 0)
+data class Board(var rows: MutableMap<RowSuit, Row> = mutableMapOf()) {
+
+    var power: Int = 0
+
+    fun addCreature(creature: Creature, rowSuit: RowSuit) {
+        rows[rowSuit]!!.addCreature(creature)
+    }
+}

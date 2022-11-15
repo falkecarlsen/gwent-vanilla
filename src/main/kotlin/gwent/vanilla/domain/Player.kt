@@ -1,14 +1,10 @@
 package gwent.vanilla.domain
 
-import gwent.vanilla.domain.Alignment
-import gwent.vanilla.domain.Spell
-
-data class Player constructor(
-        val name: String,
-        var wonRounds: Int = 0,
-        var alignment: Alignment = Alignment.Undecided,
-        var hand: List<Spell> = mutableListOf()
-) {
+data class Player constructor(val id: Int, val name: String) {
+    var wonRounds: Int = 0
+    var hand: MutableList<Spell> = mutableListOf()
+    var alignment: Alignment = Alignment.Undecided
+    val board: Board = Board()
     private var pass: Boolean = false
 
     fun pass() {

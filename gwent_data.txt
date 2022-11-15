@@ -1,0 +1,64 @@
+
+class GameData {
+	phase:Phase;
+	round:int;
+	players:[PlayerData];
+	boardHalves:[BoardHalf];
+	lastPlayedCard:Card;
+}
+
+union Phase {SetupPhase, MulliganPhase, MindPhase, GamePhase, EndPhase}
+
+class SetupPhase {}
+
+class MulliganPhase {
+	/// Which player should annouce alignment first
+	coinFlipWinner:int;
+	player1DiscardsRemaining:int;
+	player2DiscradsRemaining:int;
+}
+
+class MindPhase {
+	player1DiscardsRemaining:int;
+	player2DiscradsRemaining:int;
+}
+
+class GamePhase {
+	round:int;
+	player1HasPassed:bool;
+	player2HasPassed:bool;
+	currentPlayer:int;
+}
+
+class EndPhase {
+	winner:int;
+}
+
+class PlayerData {
+	// And/or some other player id
+	name:string;
+	roundWins:int;
+	hand:[Card];
+	alignment:Alignment;
+}
+
+enum Alignment {Undecided, Might, Magic, Mind}
+
+// Could be an enum
+class Card {
+	id:int;
+}
+
+class BoardHalf {
+	// By associating weather effects with a board half, we can tell who played the card. This is relevant for the Wild Clear Weather.
+	weatherEffects:[Card];
+	power:int;
+	melee:Row;
+	ranged:Row;
+	cavalry:Row;
+}
+
+class Row {
+	power:int;
+	units:[Card];
+}
