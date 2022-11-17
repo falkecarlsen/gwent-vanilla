@@ -93,7 +93,7 @@ fun scorch(boards: Map<Player, Board>, rowFilter: RowSuit?) {
     }.filter { it.creatureType !in immuneCreatureTypes}
 
     // Remove the creature(s) with the greatest power
-    val greatestPower = candidates.map { it.currentPower }.max()
+    val greatestPower = candidates.map { it.currentPower }.maxOrNull()
     if (greatestPower != null) {
         val creaturesToRemove = candidates.filter { it.currentPower == greatestPower }
         for (creature in creaturesToRemove) {
