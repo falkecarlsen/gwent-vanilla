@@ -1,254 +1,164 @@
 package gwent.vanilla.domain
 
-import gwent.vanilla.action.*
+import gwent.vanilla.action.Action
+import gwent.vanilla.action.Pass
+import gwent.vanilla.action.PlayCard
 import kotlin.random.Random
 
-class Game constructor(player1Name: String, player2Name: String) {
-    val player1 = Player(0, player1Name)
-    val player2 = Player(1, player2Name)
-    val players = listOf(player1, player2)
-    var phase: Phase = SetupPhase()
-    val deck: MutableList<Spell> = generateDeck()
-    val coinFlip = flipCoin()
-    val startingPlayer: Player = if (coinFlip) player1 else player2
-    var round: Int = -1
-    var weatherEffects: Map<RowSuit, Boolean> = mapOf(
-            RowSuit.DIAMONDS to false,
-            RowSuit.CLUBS to false,
-            RowSuit.SPADES to false
+const val INIT_HAND_SIZE = 10
+val CARDS = Card.ALL.size
+const val ROUNDS = 3
+
+/**
+ * This class represents a game state.
+ * It can be manipulated using valid [Action]s.
+ */
+class Game(
+    player1Name: String,
+    player2Name: String,
+) {
+    val players = listOf(
+        Player(0, player1Name),
+        Player(1, player2Name),
     )
+    val deck = newDeck()
+    var currentPlayer: Int = if (flipCoin()) 0 else 1
+    var gameOver = false
+    var round: Int = 0
 
     init {
-        // Deal cards to both players
-        player1.hand.addAll(deck.subList(0, 12))
-        deck.removeAll(player1.hand)
-        player2.hand.addAll(deck.subList(13, 25))
-        deck.removeAll(player2.hand)
-        assert(deck.size == 30 && player1.hand.size == 12 && player2.hand.size == 13) { "Deal didn't go as planned" }
-
-        phase = MulliganPhase(coinFlip, 2, 2)
+        // Immediately deal cards to both players
+        players[0].hand.addAll(deck.subList(0, INIT_HAND_SIZE))
+        players[1].hand.addAll(deck.subList(INIT_HAND_SIZE, 2 * INIT_HAND_SIZE))
+        deck.subList(0, INIT_HAND_SIZE * 2).clear()
     }
 
-    fun isActionValid(action: Action): Boolean {
-        TODO("not implemented")
+    /**
+     * Returns true of the given action is valid in the current state.
+     * The action is not performed.
+     */
+    fun isValid(action: Action): Boolean {
+        // Check if game is over
+        if (round == ROUNDS) return false
+        // Check if given player's turn
+        if (currentPlayer != action.player) return false
+        return when (action) {
+            is PlayCard -> isValidPlayCard(action)
+            is Pass -> true
+        }
     }
 
-    fun performAction(action: Action) {
-        if (isActionValid(action)) {
+    private fun isValidPlayCard(action: PlayCard): Boolean {
+        val player = players[action.player]
+        val card = Card.fromID(action.card)
+
+        // Check if player is holding the card
+        if (!player.hand.contains(card)) return false
+
+        return true
+    }
+
+    /**
+     * Try to perform the given action.
+     * The action must be valid, otherwise an error is thrown.
+     */
+    fun tryPerformAction(action: Action) {
+        if (isValid(action)) {
             when (action) {
-                is Mulligan -> performMulligan(action)
-                is MindDiscard -> performMindDiscard(action)
                 is PlayCard -> performPlayCard(action)
                 is Pass -> performPass(action)
             }
         }
     }
 
-    private fun performMulligan(action: Mulligan) {
-        val mulliganPhase = phase as MulliganPhase
-
-        // Discard card(s) and update mulligan phase
-        for (spell in action.discardedCards) {
-            discardCardFromHand(players[action.player], spell)
-            if (action.player == player1.id) {
-                mulliganPhase.player1DiscardsRemaining--
-            } else {
-                mulliganPhase.player2DiscardsRemaining--
-            }
-        }
-
-        // Choose alignment
-        players[action.player].alignment = action.alignment
-
-        if (mulliganPhase.secondPlayerHasChosenAlignment) {
-
-            // Mulligan is done
-            // If any player chose Mind as alignment, go to Mind phase, otherwise go to play phase
-            phase = if (listOf(player1, player2).any { it.alignment == Alignment.Mind }) {
-                MindPhase(
-                        if (player1.alignment == Alignment.Mind) 1 else 0,
-                        if (player2.alignment == Alignment.Mind) 1 else 0
-                )
-            } else {
-                round = 0
-                PlayPhase(currentPlayer = startingPlayer)
-            }
-        } else {
-            // One player (the second player) is done mulliganing
-            mulliganPhase.secondPlayerHasChosenAlignment = true
-        }
-    }
-
-    private fun performMindDiscard(action: MindDiscard) {
-        val mindPhase = phase as MindPhase
-
-        // Discard card
-        discardCardFromHand(players[action.player], action.discardedCard)
-        if (action.player == player1.id) {
-            mindPhase.player1DiscardsRemaining--
-        } else {
-            mindPhase.player2DiscardsRemaining--
-        }
-
-        // If both players are done discarding due to Mind, go to play phase
-        if (mindPhase.player1DiscardsRemaining == 0 && mindPhase.player2DiscardsRemaining == 0) {
-            round += 1
-            phase = PlayPhase(currentPlayer = startingPlayer, round = round + 1)
-        }
-    }
-
+    /**
+     * Performs the given [PlayCard] action.
+     * Assumes that the action has been validated by [isValid].
+     */
     private fun performPlayCard(action: PlayCard) {
-        TODO()
+        val player = players[action.player]
+        val card = Card.fromID(action.card)
+
+        // Move card from hand to board and recalculate power
+        player.hand.remove(card)
+        player.board.add(card)
+        recalculatePower()
     }
 
+    /**
+     * Performs the given [Pass] action.
+     * Assumes that the action has been validated by [isValid].
+     */
     private fun performPass(action: Pass) {
-        val playPhase = phase as PlayPhase
 
-        // Mark that the player has passed
-        players[action.player].pass()
-        if (action.player == player1.id) {
-            playPhase.player1HasPassed = true
-        } else {
-            playPhase.player2HasPassed = true
-        }
+        players[action.player].hasPassed = true
+        currentPlayer = 1 - currentPlayer
 
-        // If both players has passed, the round ends
-        if (playPhase.player1HasPassed && playPhase.player2HasPassed) {
+        // Check if round is over
+        if (players[0].hasPassed && players[1].hasPassed) {
 
-            // TODO("check for winner and clear board")
-
-            when {
-                // If a player has won more than two rounds they win
-                player1.wonRounds > 1 -> phase = EndPhase(player1)
-                player2.wonRounds > 1 -> phase = EndPhase(player2)
-                // This was last round yet no one has won two rounds => we have a tie
-                round == 2 -> {
-                    // No player has won more than 1 round and last round has been played
-                    phase = EndPhase(getWinner())
-                }
-                else -> {
-                    // Decide who starts next round (usually the winner)
-                    val tiebreaker = if (player1.alignment == Alignment.Might && player2.alignment != Alignment.Might) {
-                        player1
-                    } else if (player1.alignment != Alignment.Might && player2.alignment == Alignment.Might) {
-                        player2
-                    } else {
-                        if (playPhase.currentPlayer == player1) player2 else player1
-                    }
-
-                    // Go to next round
-                    round += 1
-                    phase = PlayPhase(currentPlayer = decideRoundWinner() ?: tiebreaker)
-                }
+            // Determine winner
+            recalculatePower() // Probably unnecessary
+            val roundWinner = currentRoundWinner()
+            when (roundWinner) {
+                players[0] -> players[0].wonRounds += 1
+                players[1] -> players[1].wonRounds += 1
             }
+
+            // Clean up for next round
+            players[0].prepareForNewRound()
+            players[1].prepareForNewRound()
+            round += 1
+            if (roundWinner != null) currentPlayer = roundWinner.id
+
+            // Game is over if round == ROUNDS
         }
     }
 
+    /**
+     * Returns the game winner.
+     * Assumes the game is over.
+     */
     fun getWinner(): Player? {
         return when {
-            player1.wonRounds > player2.wonRounds -> player1
-            player1.wonRounds < player2.wonRounds -> player2
+            players[0].wonRounds > players[1].wonRounds -> players[0]
+            players[0].wonRounds < players[1].wonRounds -> players[1]
             else -> null
         }
     }
 
-    fun decideRoundWinner(): Player? {
-        // TODO Consider Might
+    /**
+     * Returns the current round winner based on the current round state.
+     * Assumes power are up-to-date.
+     */
+    fun currentRoundWinner(): Player? {
         return when {
-            player1.board.power > player2.board.power -> player1
-            player1.board.power < player2.board.power -> player2
+            players[0].board.currentPower > players[1].board.currentPower -> players[0]
+            players[0].board.currentPower < players[1].board.currentPower -> players[1]
             else -> null
         }
     }
 
-    fun calculatePower(game: Game) {
-
-        //per player, per board, per row, per card
-
-        for (player in listOf(player1, player2)) {
-            player.board.power = 0
-            for (row in player.board.rows) {
-                for (creature in row.value.cards) {
-                    var cardPower = creature.creatureType.power()
-                    if (weatherEffects[row.key]!!) {
-                        cardPower = 2
-                    }
-                    if (player.alignment == Alignment.Might && creature.creatureType.picture) {
-                        cardPower += 2
-                    }
-                    // TODO Seer-buff
-                    creature.currentPower = cardPower * creature.empowerMultiplier
-                    player.board.power += creature.currentPower
+    /**
+     * Iterates through all players, boards, rows, and cards to make
+     * sure that all currentPower variables are up-to-date.
+     */
+    fun recalculatePower() {
+        for (player in players) {
+            val board = player.board
+            board.currentPower = 0
+            for ((suit, row) in board.rows) {
+                row.currentPower = 0
+                for (card in row.cards) {
+                    row.currentPower += card.basePower
                 }
+                board.currentPower += row.currentPower
             }
         }
     }
 
-    private fun flipCoin(): Boolean {
-        return Random.nextBoolean()
-    }
-
-    fun discardCardFromHand(player: Player, spellId: Int) {
-        player.hand.removeAt(player.hand.indexOfFirst { it.cardType.id == spellId })
-    }
-
-    fun generateDeck(): MutableList<Spell> {
-        return mutableListOf(
-                Spell(SPELL_SPADES_ACE),
-                Spell(SPELL_SPADES_2),
-                Spell(SPELL_SPADES_3),
-                Spell(SPELL_SPADES_4),
-                Spell(SPELL_SPADES_5),
-                Spell(SPELL_SPADES_6),
-                Spell(SPELL_SPADES_7),
-                Spell(SPELL_SPADES_8),
-                Spell(SPELL_SPADES_9),
-                Spell(SPELL_SPADES_10),
-                Spell(SPELL_SPADES_JACK),
-                Spell(SPELL_SPADES_QUEEN),
-                Spell(SPELL_SPADES_KING),
-                Spell(SPELL_CLUBS_ACE),
-                Spell(SPELL_CLUBS_2),
-                Spell(SPELL_CLUBS_3),
-                Spell(SPELL_CLUBS_4),
-                Spell(SPELL_CLUBS_5),
-                Spell(SPELL_CLUBS_6),
-                Spell(SPELL_CLUBS_7),
-                Spell(SPELL_CLUBS_8),
-                Spell(SPELL_CLUBS_9),
-                Spell(SPELL_CLUBS_10),
-                Spell(SPELL_CLUBS_JACK),
-                Spell(SPELL_CLUBS_QUEEN),
-                Spell(SPELL_CLUBS_KING),
-                Spell(SPELL_DIAMONDS_ACE),
-                Spell(SPELL_DIAMONDS_2),
-                Spell(SPELL_DIAMONDS_3),
-                Spell(SPELL_DIAMONDS_4),
-                Spell(SPELL_DIAMONDS_5),
-                Spell(SPELL_DIAMONDS_6),
-                Spell(SPELL_DIAMONDS_7),
-                Spell(SPELL_DIAMONDS_8),
-                Spell(SPELL_DIAMONDS_9),
-                Spell(SPELL_DIAMONDS_10),
-                Spell(SPELL_DIAMONDS_JACK),
-                Spell(SPELL_DIAMONDS_QUEEN),
-                Spell(SPELL_DIAMONDS_KING),
-                Spell(SPELL_HEARTS_ACE),
-                Spell(SPELL_HEARTS_2),
-                Spell(SPELL_HEARTS_3),
-                Spell(SPELL_HEARTS_4),
-                Spell(SPELL_HEARTS_5),
-                Spell(SPELL_HEARTS_6),
-                Spell(SPELL_HEARTS_7),
-                Spell(SPELL_HEARTS_8),
-                Spell(SPELL_HEARTS_9),
-                Spell(SPELL_HEARTS_10),
-                Spell(SPELL_HEARTS_JACK),
-                Spell(SPELL_HEARTS_QUEEN),
-                Spell(SPELL_HEARTS_KING),
-                Spell(SPELL_JOKER),
-                Spell(SPELL_JOKER)
-        )
-                .also { it.shuffle() }
-    }
+    /**
+     * Returns true or false at random
+     */
+    private fun flipCoin() = Random.nextBoolean()
 }

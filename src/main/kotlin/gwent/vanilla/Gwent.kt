@@ -12,6 +12,3 @@ fun main() {
     var game = Game(player1, player2)
     // TODO setup listen loop for actions from middleware/client
 }
-
-
-
