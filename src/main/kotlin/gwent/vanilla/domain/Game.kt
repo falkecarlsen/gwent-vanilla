@@ -6,7 +6,7 @@ import gwent.vanilla.action.PlayCard
 import kotlin.random.Random
 
 const val INIT_HAND_SIZE = 10
-val CARDS = Card.ALL.size
+val CARDS = Card.all().size
 const val ROUNDS = 3
 
 /**
@@ -16,14 +16,13 @@ const val ROUNDS = 3
 class Game(
     player1Name: String,
     player2Name: String,
+    val deck: MutableList<Card> = newDeck(),
+    var currentPlayer: Int = if (Random.nextBoolean()) 0 else 1,
 ) {
     val players = listOf(
         Player(0, player1Name),
         Player(1, player2Name),
     )
-    val deck = newDeck()
-    var currentPlayer: Int = if (flipCoin()) 0 else 1
-    var gameOver = false
     var round: Int = 0
 
     init {
@@ -68,6 +67,8 @@ class Game(
                 is PlayCard -> performPlayCard(action)
                 is Pass -> performPass(action)
             }
+        } else {
+            throw InvalidActionException() // TODO Explain why in error message
         }
     }
 
@@ -83,6 +84,8 @@ class Game(
         player.hand.remove(card)
         player.board.add(card)
         recalculatePower()
+
+        currentPlayer = 1 - currentPlayer
     }
 
     /**
@@ -156,9 +159,4 @@ class Game(
             }
         }
     }
-
-    /**
-     * Returns true or false at random
-     */
-    private fun flipCoin() = Random.nextBoolean()
 }
