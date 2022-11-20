@@ -85,7 +85,7 @@ sealed class Card(
         /**
          * Collection contain all cards.
          */
-        val ALL = listOf(
+        fun all() = listOf(
             Spades3,
             Spades4,
             Spades5,
@@ -121,8 +121,8 @@ sealed class Card(
             ClubsKing,
         )
 
-        fun fromID(id: String) = ALL.first { it.id == id }
-        fun fromIDOrNull(id: String) = ALL.firstOrNull { it.id == id }
+        fun fromID(id: String) = all().first { it.id == id }
+        fun fromIDOrNull(id: String) = all().firstOrNull { it.id == id }
     }
 }
 
@@ -130,5 +130,5 @@ sealed class Card(
  * Returns a shuffled deck with all cards.
  */
 fun newDeck(): MutableList<Card> {
-    return Card.ALL.toMutableList().also { it.shuffle() }
+    return Card.all().toMutableList().also { it.shuffle() }
 }

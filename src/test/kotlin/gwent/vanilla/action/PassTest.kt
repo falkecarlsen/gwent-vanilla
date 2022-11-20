@@ -1,7 +1,7 @@
 package gwent.vanilla.action
 
 import gwent.vanilla.domain.Game
-import org.junit.Test
+import kotlin.test.Test
 
 class PassTest {
     @Test
