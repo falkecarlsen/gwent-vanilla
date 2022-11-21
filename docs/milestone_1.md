@@ -1,7 +1,7 @@
 # Milestone 1
 
-Despite being a card game playable with physical cards, Vanilla Gwent actually have quite complex when modeled.
-It gets especially more complicated when we add interfaces, servers, serialization and more into the mix. 
+Despite being a card game playable with physical cards, Vanilla Gwent is quite complex when modeled.
+It gets especially more complicated when we add interfaces, servers, serialization, and more into the mix. 
 
 In order to develop the game, it will be broken down into a series of milestones.
 This document focuses on Milestone 1: The MVP.
