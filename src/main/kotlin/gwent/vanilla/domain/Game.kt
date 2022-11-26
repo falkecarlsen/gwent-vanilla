@@ -1,8 +1,6 @@
 package gwent.vanilla.domain
 
-import gwent.vanilla.action.Action
-import gwent.vanilla.action.Pass
-import gwent.vanilla.action.PlayCard
+import gwent.vanilla.action.*
 import kotlin.random.Random
 
 const val INIT_HAND_SIZE = 10
@@ -33,42 +31,49 @@ class Game(
     }
 
     /**
-     * Returns true of the given action is valid in the current state.
+     * Returns true of the given [Action] is valid in the current state.
+     * Throws an exception if the action is not valid.
      * The action is not performed.
      */
-    fun isValid(action: Action): Boolean {
+    fun validate(action: Action): Boolean {
         // Check if game is over
-        if (round == ROUNDS) return false
+        if (round == ROUNDS) throw GameOverException()
         // Check if given player's turn
-        if (currentPlayer != action.player) return false
+        if (currentPlayer != action.player) throw OtherPlayersTurnException(action.player, currentPlayer)
         return when (action) {
-            is PlayCard -> isValidPlayCard(action)
+            is PlayCard -> validatePlayCard(action)
             is Pass -> true
         }
     }
 
-    private fun isValidPlayCard(action: PlayCard): Boolean {
+    /**
+     * Returns true of the given [PlayCard] action is valid in the current state.
+     * Throws an exception if the action is not valid.
+     * The action is not performed.
+     */
+    private fun validatePlayCard(action: PlayCard): Boolean {
         val player = players[action.player]
         val card = Card.fromID(action.card)
 
         // Check if player is holding the card
-        if (!player.hand.contains(card)) return false
+        if (!player.hand.contains(card)) throw NotInHandException(card, action.player)
 
         return true
     }
 
     /**
-     * Try to perform the given action.
-     * The action must be valid, otherwise an error is thrown.
+     * Try to perform the given [Action].
+     * If the [Action] is not valid, an [InvalidActionException] is thrown
+     * detailing why the [action] is invalid.
      */
     fun tryPerformAction(action: Action) {
-        if (isValid(action)) {
+        if (validate(action)) {
             when (action) {
                 is PlayCard -> performPlayCard(action)
                 is Pass -> performPass(action)
             }
         } else {
-            throw InvalidActionException() // TODO Explain why in error message
+            TODO("Undocumented reason for action being invalid")
         }
     }
 
@@ -141,6 +146,8 @@ class Game(
             else -> null
         }
     }
+
+    fun isGameOver() = round == ROUNDS
 
     /**
      * Iterates through all players, boards, rows, and cards to make

@@ -2,7 +2,6 @@ package gwent.vanilla.action
 
 import gwent.vanilla.domain.Card
 import gwent.vanilla.domain.Game
-import gwent.vanilla.domain.InvalidActionException
 import gwent.vanilla.domain.RowSuit
 import gwent.vanilla.testing.TestSetup
 import kotlin.test.Test
@@ -38,7 +37,7 @@ class PlayCardTest {
         val action = PlayCard(0, "C4")
 
         assert(!game.players[0].hand.contains(Card.Clubs4))
-        assertFailsWith(InvalidActionException::class) {
+        assertFailsWith(NotInHandException::class) {
             game.tryPerformAction(action)
         }
     }
