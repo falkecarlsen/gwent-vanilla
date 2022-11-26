@@ -17,19 +17,21 @@ class Suit(Enum):
 
 
 class Ability(Enum):
-    MILITIA = 0
-    SEER = 1
-    HERO = 2
-    SPY = 3
-    COMMANDER = 4  # Jack
-    UNIQUE = 5  # Queen
-    IMMUNE = 6  # King
+    MILITIA = 0  # Get stronger with other militia
+    SEER = 1  # See card from enemy hand
+    HERO = 2  # Destroy big enemy
+    SPY = 3  # Go on enemy board to draw a card
+    CHARGER = 4  # Stronger when recently played
+    WIZARD = 5  # Move an enemy
+    COMMANDER = 6  # Jack, get stronger with more units in row
+    UNIQUE = 7  # Queen, only one on entire board
+    IMMUNE = 8  # King, ignored to some spells
 
 
 class Effect(Enum):
-    WEATHER = 0
-    SCORCH = 1
-    EMPOWER = 2
+    WEATHER = 0  # Make row weak
+    SCORCH = 1  # Destroy the strongest unit
+    EMPOWER = 2  # Double power of unit
 
 
 @dataclass
@@ -87,10 +89,12 @@ SUIT_ICONS = {
 ABILITY_ICONS = {
     Ability.MILITIA: Image.open(ASSETS_FOLDER / "militia_symbol.png").convert('RGBA'),
     Ability.SEER: Image.open(ASSETS_FOLDER / "seer_symbol.png").convert('RGBA'),
-    Ability.UNIQUE: Image.open(ASSETS_FOLDER / "unique_symbol.png").convert('RGBA'),
     Ability.HERO: Image.open(ASSETS_FOLDER / "hero_symbol.png").convert('RGBA'),
     Ability.SPY: Image.open(ASSETS_FOLDER / "spy_symbol.png").convert('RGBA'),
+    Ability.CHARGER: Image.open(ASSETS_FOLDER / "charger_symbol.png").convert('RGBA'),
+    Ability.WIZARD: Image.open(ASSETS_FOLDER / "wizard_symbol.png").convert('RGBA'),
     Ability.COMMANDER: Image.open(ASSETS_FOLDER / "commander_symbol.png").convert('RGBA'),
+    Ability.UNIQUE: Image.open(ASSETS_FOLDER / "unique_symbol.png").convert('RGBA'),
     Ability.IMMUNE: Image.open(ASSETS_FOLDER / "immune_symbol.png").convert('RGBA'),
 }
 
@@ -106,8 +110,8 @@ cards = [
     Unit("spades_4.png", Suit.SPADES, 4, Ability.MILITIA),
     Unit("spades_5.png", Suit.SPADES, 5, None),
     Unit("spades_6.png", Suit.SPADES, 6, None),
-    Unit("spades_7.png", Suit.SPADES, 7, None),
-    Unit("spades_8.png", Suit.SPADES, 8, None),
+    Unit("spades_7.png", Suit.SPADES, 7, Ability.CHARGER),
+    Unit("spades_8.png", Suit.SPADES, 8, Ability.WIZARD),
     Unit("spades_9.png", Suit.SPADES, 9, None),
     Unit("spades_10.png", Suit.SPADES, 10, None),
     Unit("spades_jack.png", Suit.SPADES, 10, Ability.COMMANDER),
@@ -117,8 +121,8 @@ cards = [
     Unit("diamonds_4.png", Suit.DIAMONDS, 4, Ability.MILITIA),
     Unit("diamonds_5.png", Suit.DIAMONDS, 5, None),
     Unit("diamonds_6.png", Suit.DIAMONDS, 6, None),
-    Unit("diamonds_7.png", Suit.DIAMONDS, 7, None),
-    Unit("diamonds_8.png", Suit.DIAMONDS, 8, None),
+    Unit("diamonds_7.png", Suit.DIAMONDS, 7, Ability.CHARGER),
+    Unit("diamonds_8.png", Suit.DIAMONDS, 8, Ability.WIZARD),
     Unit("diamonds_9.png", Suit.DIAMONDS, 9, None),
     Unit("diamonds_10.png", Suit.DIAMONDS, 10, None),
     Unit("diamonds_jack.png", Suit.DIAMONDS, 10, Ability.COMMANDER),
@@ -128,8 +132,8 @@ cards = [
     Unit("clubs_4.png", Suit.CLUBS, 4, Ability.MILITIA),
     Unit("clubs_5.png", Suit.CLUBS, 5, None),
     Unit("clubs_6.png", Suit.CLUBS, 6, None),
-    Unit("clubs_7.png", Suit.CLUBS, 7, None),
-    Unit("clubs_8.png", Suit.CLUBS, 8, None),
+    Unit("clubs_7.png", Suit.CLUBS, 7, Ability.CHARGER),
+    Unit("clubs_8.png", Suit.CLUBS, 8, Ability.WIZARD),
     Unit("clubs_9.png", Suit.CLUBS, 9, None),
     Unit("clubs_10.png", Suit.CLUBS, 10, None),
     Unit("clubs_jack.png", Suit.CLUBS, 10, Ability.COMMANDER),
@@ -139,8 +143,8 @@ cards = [
     Unit("hearts_4.png", Suit.HEARTS, 4, Ability.MILITIA),
     Unit("hearts_5.png", Suit.HEARTS, 5, Ability.HERO),
     Unit("hearts_6.png", Suit.HEARTS, 6, None),
-    Unit("hearts_7.png", Suit.HEARTS, 7, None),
-    Unit("hearts_8.png", Suit.HEARTS, 8, None),
+    Unit("hearts_7.png", Suit.HEARTS, 7, Ability.CHARGER),
+    Unit("hearts_8.png", Suit.HEARTS, 8, Ability.WIZARD),
     Unit("hearts_9.png", Suit.HEARTS, 9, None),
     Unit("hearts_10.png", Suit.HEARTS, 10, None),
     Unit("hearts_jack.png", Suit.HEARTS, 10, Ability.COMMANDER),
