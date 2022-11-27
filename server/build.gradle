@@ -13,6 +13,8 @@ application {
 }
 
 dependencies {
+    implementation project(":core")
+
     // Use Klaxon for json serialization
     implementation 'com.beust:klaxon:5.6'
 
