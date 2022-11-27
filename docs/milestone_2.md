@@ -10,7 +10,7 @@ This includes serialization of relevant data, such as game state and actions.
 When M2 is complete, we have a vertical slice.
 
 ## Features
-The following is the features are planned for this milestone.
+The following is a list of features planned for this milestone:
 
 - A server managing a single game of Vanilla Gwent
 - minimal CLI client
@@ -26,10 +26,10 @@ The following is the features are planned for this milestone.
 
 
 ## Not in this milestone
-The following is a list of features, which is NOT planned for this milestone (but a coming one).
+The following is a list of features, which is NOT planned for this milestone.
 This list is included to avoid confusion and to outline future milestones.
 
-- Any gameplay logic, such as
+- Any new gameplay logic, such as:
   - Mulligan phase (where cards are discarded initially)
   - Spell cards like aces and twos (weather effects)
   - Unit cards with abilities
@@ -38,5 +38,5 @@ This list is included to avoid confusion and to outline future milestones.
   - Multiple matches running in parallel
   - Waiting for new games to start
 - Persistence (No database, games are simply stored in RAM for now)
-- Hidden information (the game state will include the entire game state. UI is responsible for hiding information the player should not have)
+- Hidden information (the game state will include the entire game state for now)
 - UI

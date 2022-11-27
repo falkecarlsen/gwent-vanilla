@@ -8,7 +8,7 @@ This document focuses on Milestone 1: The MVP.
 In this MVP the absolute fundamentals of the game is developed and no more.
 
 ## Features
-The following is the features are planned for this milestone.
+The following is a list of features planned for this milestone:
 
 - Unit cards with Power and Suit
 - Shared deck and random starting hand
@@ -22,7 +22,7 @@ The following is the features are planned for this milestone.
 - Winning/losing/ties
 
 ## Not in this milestone
-The following is a list of features, which is NOT planned for this milestone (but a coming one).
+The following is a list of features, which is NOT planned for this milestone.
 This list is included to avoid confusion and to outline future milestones.
 
 - Mulligan phase (where cards are discarded initially)
