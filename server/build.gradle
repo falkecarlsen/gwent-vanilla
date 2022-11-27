@@ -1,0 +1,31 @@
+
+plugins {
+    // Apply the Kotlin JVM plugin to add support for Kotlin.
+    id 'org.jetbrains.kotlin.jvm' version '1.6.21'
+
+    // Apply the application plugin to add support for building a runnable application.
+    id 'application'
+}
+
+application {
+    // Define the main class for the application.
+    mainClassName = 'gwent.server.GwentServerKt'
+}
+
+dependencies {
+    implementation project(":core")
+
+    // Use Klaxon for json serialization
+    implementation 'com.beust:klaxon:5.6'
+
+    // Use the Kotlin test library.
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '11'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '11'
+}
