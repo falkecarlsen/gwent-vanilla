@@ -108,15 +108,15 @@ class Game(
             recalculatePower() // Probably unnecessary
             val roundWinner = currentRoundWinner()
             when (roundWinner) {
-                players[0] -> players[0].wonRounds += 1
-                players[1] -> players[1].wonRounds += 1
+                players[0] -> players[0].roundsWon += 1
+                players[1] -> players[1].roundsWon += 1
             }
 
             // Clean up for next round
             players[0].prepareForNewRound()
             players[1].prepareForNewRound()
             round += 1
-            if (roundWinner != null) currentPlayer = roundWinner.id
+            if (roundWinner != null) currentPlayer = roundWinner.index
 
             // Game is over if round == ROUNDS
         }
@@ -128,8 +128,8 @@ class Game(
      */
     fun getWinner(): Player? {
         return when {
-            players[0].wonRounds > players[1].wonRounds -> players[0]
-            players[0].wonRounds < players[1].wonRounds -> players[1]
+            players[0].roundsWon > players[1].roundsWon -> players[0]
+            players[0].roundsWon < players[1].roundsWon -> players[1]
             else -> null
         }
     }

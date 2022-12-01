@@ -41,7 +41,7 @@ enum class RowSuit {
  * A card equivalent to its physical counterpart.
  */
 sealed class Card(
-    val id: String,
+    val name: String,
     val basePower: Int,
     val suit: Suit,
 ) {
@@ -121,8 +121,8 @@ sealed class Card(
             ClubsKing,
         )
 
-        fun fromID(id: String) = all().first { it.id == id }
-        fun fromIDOrNull(id: String) = all().firstOrNull { it.id == id }
+        fun fromID(id: String) = all().first { it.name == id }
+        fun fromIDOrNull(id: String) = all().firstOrNull { it.name == id }
     }
 }
 

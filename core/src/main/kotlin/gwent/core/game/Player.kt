@@ -4,10 +4,10 @@ package gwent.core.game
  * A player and everything that belongs to a player.
  */
 class Player(
-    val id: Int,
+    val index: Int,
     val name: String,
 ) {
-    var wonRounds: Int = 0
+    var roundsWon: Int = 0
     var hand: MutableList<Card> = mutableListOf()
     val board: PlayerBoard = PlayerBoard()
     var hasPassed: Boolean = false
