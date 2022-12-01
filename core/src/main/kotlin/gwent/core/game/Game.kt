@@ -1,5 +1,6 @@
 package gwent.core.game
 
+import gwent.core.serialize.GameDTO
 import kotlin.random.Random
 
 const val INIT_HAND_SIZE = 10
@@ -165,4 +166,14 @@ class Game(
             }
         }
     }
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = GameDTO(
+        deck = deck.map { it.toDTO() },
+        players = players.map { it.toDTO() },
+        currentPlayer = currentPlayer,
+        round = 0,
+    )
 }

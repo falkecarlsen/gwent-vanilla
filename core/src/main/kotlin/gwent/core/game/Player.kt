@@ -1,5 +1,7 @@
 package gwent.core.game
 
+import gwent.core.serialize.PlayerDTO
+
 /**
  * A player and everything that belongs to a player.
  */
@@ -21,4 +23,16 @@ class Player(
             row.cards.clear()
         }
     }
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = PlayerDTO(
+        index = index,
+        name = name,
+        roundsWon = roundsWon,
+        hand = hand.map { it.toDTO() },
+        board = board.toDTO(),
+        hasPassed = hasPassed,
+    )
 }

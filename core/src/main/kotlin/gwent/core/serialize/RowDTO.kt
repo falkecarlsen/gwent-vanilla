@@ -5,7 +5,6 @@ package gwent.core.serialize
  * Intended as intermediary object in (de)serializable.
  */
 class RowDTO(
-    val suit: String,
     val currentPower: Int,
     val units: List<CardDTO>,
 )

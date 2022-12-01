@@ -1,5 +1,7 @@
 package gwent.core.game
 
+import gwent.core.serialize.CardDTO
+
 /**
  * The four suits of a standard game of cards.
  */
@@ -80,6 +82,15 @@ sealed class Card(
     object ClubsJack : Card("CJ", 11, Suit.CLUBS)
     object ClubsQueen : Card("CQ", 12, Suit.CLUBS)
     object ClubsKing : Card("CK", 13, Suit.CLUBS)
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = CardDTO(
+        name = name,
+        basePower = basePower,
+        suit = suit.name.lowercase(),
+    )
 
     companion object {
         /**
