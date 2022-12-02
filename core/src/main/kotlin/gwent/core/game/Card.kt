@@ -132,7 +132,7 @@ sealed class Card(
             ClubsKing,
         )
 
-        fun fromID(id: String) = all().first { it.name == id }
+        fun fromName(id: String) = all().first { it.name == id }
         fun fromIDOrNull(id: String) = all().firstOrNull { it.name == id }
     }
 }

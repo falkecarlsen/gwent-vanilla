@@ -53,10 +53,9 @@ class Game(
      */
     private fun validatePlayCard(action: PlayCard): Boolean {
         val player = players[action.player]
-        val card = Card.fromID(action.card)
 
         // Check if player is holding the card
-        if (!player.hand.contains(card)) throw NotInHandException(card, action.player)
+        if (!player.hand.contains(action.card)) throw NotInHandException(action.card, action.player)
 
         return true
     }
@@ -83,11 +82,10 @@ class Game(
      */
     private fun performPlayCard(action: PlayCard) {
         val player = players[action.player]
-        val card = Card.fromID(action.card)
 
         // Move card from hand to board and recalculate power
-        player.hand.remove(card)
-        player.board.add(card)
+        player.hand.remove(action.card)
+        player.board.add(action.card)
         recalculatePower()
 
         currentPlayer = 1 - currentPlayer
