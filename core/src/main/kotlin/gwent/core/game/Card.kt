@@ -1,5 +1,7 @@
 package gwent.core.game
 
+import gwent.core.serialize.CardDTO
+
 /**
  * The four suits of a standard game of cards.
  */
@@ -41,7 +43,7 @@ enum class RowSuit {
  * A card equivalent to its physical counterpart.
  */
 sealed class Card(
-    val id: String,
+    val name: String,
     val basePower: Int,
     val suit: Suit,
 ) {
@@ -52,7 +54,7 @@ sealed class Card(
     object Spades7 : Card("S7", 7, Suit.SPADES)
     object Spades8 : Card("S8", 8, Suit.SPADES)
     object Spades9 : Card("S9", 9, Suit.SPADES)
-    object Spades10 : Card("CS0", 10, Suit.SPADES)
+    object Spades10 : Card("S10", 10, Suit.SPADES)
     object SpadesJack : Card("SJ", 11, Suit.SPADES)
     object SpadesQueen : Card("SQ", 12, Suit.SPADES)
     object SpadesKing : Card("SK", 13, Suit.SPADES)
@@ -64,7 +66,7 @@ sealed class Card(
     object Diamond7 : Card("D7", 7, Suit.DIAMONDS)
     object Diamond8 : Card("D8", 8, Suit.DIAMONDS)
     object Diamond9 : Card("D9", 9, Suit.DIAMONDS)
-    object Diamond10 : Card("CD0", 10, Suit.DIAMONDS)
+    object Diamond10 : Card("D10", 10, Suit.DIAMONDS)
     object DiamondJack : Card("DJ", 11, Suit.DIAMONDS)
     object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS)
     object DiamondKing : Card("DK", 13, Suit.DIAMONDS)
@@ -80,6 +82,15 @@ sealed class Card(
     object ClubsJack : Card("CJ", 11, Suit.CLUBS)
     object ClubsQueen : Card("CQ", 12, Suit.CLUBS)
     object ClubsKing : Card("CK", 13, Suit.CLUBS)
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = CardDTO(
+        name = name,
+        basePower = basePower,
+        suit = suit.name.lowercase(),
+    )
 
     companion object {
         /**
@@ -121,8 +132,8 @@ sealed class Card(
             ClubsKing,
         )
 
-        fun fromID(id: String) = all().first { it.id == id }
-        fun fromIDOrNull(id: String) = all().firstOrNull { it.id == id }
+        fun fromName(id: String) = all().first { it.name == id }
+        fun fromIDOrNull(id: String) = all().firstOrNull { it.name == id }
     }
 }
 

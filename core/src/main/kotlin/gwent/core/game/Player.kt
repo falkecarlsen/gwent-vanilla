@@ -1,13 +1,15 @@
 package gwent.core.game
 
+import gwent.core.serialize.PlayerDTO
+
 /**
  * A player and everything that belongs to a player.
  */
 class Player(
-    val id: Int,
+    val index: Int,
     val name: String,
 ) {
-    var wonRounds: Int = 0
+    var roundsWon: Int = 0
     var hand: MutableList<Card> = mutableListOf()
     val board: PlayerBoard = PlayerBoard()
     var hasPassed: Boolean = false
@@ -21,4 +23,16 @@ class Player(
             row.cards.clear()
         }
     }
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = PlayerDTO(
+        index = index,
+        name = name,
+        roundsWon = roundsWon,
+        hand = hand.map { it.toDTO() },
+        board = board.toDTO(),
+        hasPassed = hasPassed,
+    )
 }

@@ -7,8 +7,8 @@ import kotlin.test.assertEquals
 class TestSetupTest {
     @Test
     fun variedDeck01() {
-        val testDeck = TestSetup.variedDeck().sortedBy { it.id }
-        val realDeck = Card.all().sortedBy { it.id }
+        val testDeck = TestSetup.variedDeck().sortedBy { it.name }
+        val realDeck = Card.all().sortedBy { it.name }
 
         assertEquals(Card.all().size, testDeck.size)
         assertEquals(realDeck, testDeck)

@@ -1,5 +1,6 @@
 package gwent.core.game
 
+import gwent.core.serialize.GameDTO
 import kotlin.random.Random
 
 const val INIT_HAND_SIZE = 10
@@ -52,10 +53,9 @@ class Game(
      */
     private fun validatePlayCard(action: PlayCard): Boolean {
         val player = players[action.player]
-        val card = Card.fromID(action.card)
 
         // Check if player is holding the card
-        if (!player.hand.contains(card)) throw NotInHandException(card, action.player)
+        if (!player.hand.contains(action.card)) throw NotInHandException(action.card, action.player)
 
         return true
     }
@@ -82,11 +82,10 @@ class Game(
      */
     private fun performPlayCard(action: PlayCard) {
         val player = players[action.player]
-        val card = Card.fromID(action.card)
 
         // Move card from hand to board and recalculate power
-        player.hand.remove(card)
-        player.board.add(card)
+        player.hand.remove(action.card)
+        player.board.add(action.card)
         recalculatePower()
 
         currentPlayer = 1 - currentPlayer
@@ -108,15 +107,15 @@ class Game(
             recalculatePower() // Probably unnecessary
             val roundWinner = currentRoundWinner()
             when (roundWinner) {
-                players[0] -> players[0].wonRounds += 1
-                players[1] -> players[1].wonRounds += 1
+                players[0] -> players[0].roundsWon += 1
+                players[1] -> players[1].roundsWon += 1
             }
 
             // Clean up for next round
             players[0].prepareForNewRound()
             players[1].prepareForNewRound()
             round += 1
-            if (roundWinner != null) currentPlayer = roundWinner.id
+            if (roundWinner != null) currentPlayer = roundWinner.index
 
             // Game is over if round == ROUNDS
         }
@@ -128,8 +127,8 @@ class Game(
      */
     fun getWinner(): Player? {
         return when {
-            players[0].wonRounds > players[1].wonRounds -> players[0]
-            players[0].wonRounds < players[1].wonRounds -> players[1]
+            players[0].roundsWon > players[1].roundsWon -> players[0]
+            players[0].roundsWon < players[1].roundsWon -> players[1]
             else -> null
         }
     }
@@ -165,4 +164,14 @@ class Game(
             }
         }
     }
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = GameDTO(
+        deck = deck.map { it.toDTO() },
+        players = players.map { it.toDTO() },
+        currentPlayer = currentPlayer,
+        round = 0,
+    )
 }

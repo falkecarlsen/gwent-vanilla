@@ -1,5 +1,7 @@
 package gwent.core.game
 
+import gwent.core.serialize.PlayerBoardDTO
+
 /**
  * The [PlayerBoard] holds all cards that is part of a player's army.
  * It contains of a row for each card suit.
@@ -15,4 +17,14 @@ class PlayerBoard {
     fun add(card: Card) {
         rows[card.suit.toRowSuit()!!]!!.add(card)
     }
+
+    /**
+     * Convert to data transfer object.
+     */
+    fun toDTO() = PlayerBoardDTO(
+        currentPower = currentPower,
+        spades = rows[RowSuit.SPADES]!!.toDTO(),
+        clubs = rows[RowSuit.CLUBS]!!.toDTO(),
+        diamonds = rows[RowSuit.DIAMONDS]!!.toDTO(),
+    )
 }
