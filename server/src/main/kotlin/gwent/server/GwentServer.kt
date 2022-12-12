@@ -34,11 +34,14 @@ fun Application.configureSockets() {
     routing {
         // This block runs when a socket connects to our server using the '/gwent' route
         webSocket("/gwent") {
+            println("Somebody connected!")
             send("You are connected!")
-            for(frame in incoming) {
+            flush()
+            for (frame in incoming) {
                 frame as? Frame.Text ?: continue
                 val receivedText = frame.readText()
                 send("You said: $receivedText")
+                flush()
             }
         }
     }
