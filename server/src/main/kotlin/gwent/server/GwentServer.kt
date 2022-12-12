@@ -1,48 +1,50 @@
 package gwent.server
 
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
-import java.time.Duration
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.PrintWriter
+import java.net.ServerSocket
+import java.net.Socket
 
-/**
- * The server uses the Ktor framework with netty engine.
- * The actual entry point (setup of our stuff) is [Application.module].
- */
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+class GwentServer {
 
-/**
- * Sets up the GwentServer.
- */
-@Suppress("Unused")
-fun Application.module() {
-    configureSockets()
-    println("Hello from Gwent Server")
+    fun start(port: Int): Nothing {
+        val serverSocket = ServerSocket(port)
+        println("Gwent server started on port $port. Waiting for clients...")
+
+        // This is the main loop of the server.
+        // We wait for somebody to connect and when they do, we create a thread that handles communication with them.
+        while (true) GwentClientHandler(serverSocket.accept()).start()
+    }
 }
 
 /**
- * Sets up the WebSocket and routes.
+ * The [GwentClientHandler] is a thread that handles communication with a single client.
  */
-fun Application.configureSockets() {
-    install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(15)
-        timeout = Duration.ofSeconds(15)
-        maxFrameSize = Long.MAX_VALUE
-        masking = false
-    }
-    routing {
-        // This block runs when a socket connects to our server using the '/gwent' route
-        webSocket("/gwent") {
-            println("Somebody connected!")
-            send("You are connected!")
-            flush()
-            for (frame in incoming) {
-                frame as? Frame.Text ?: continue
-                val receivedText = frame.readText()
-                send("You said: $receivedText")
-                flush()
+private class GwentClientHandler(
+    private val clientSocket: Socket,
+) : Thread() {
+
+    lateinit var out: PrintWriter
+    lateinit var `in`: BufferedReader
+
+    override fun run() {
+        println("Client connected")
+        out = PrintWriter(clientSocket.getOutputStream(), true)
+        `in` = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
+
+        // The main loop of the client handler
+        while (true) {
+            val inputLine = `in`.readLine()
+            if ("close" == inputLine) {
+                out.println("bye")
+                break
             }
+            out.println("$inputLine :)")
         }
+        `in`.close()
+        out.close()
+        clientSocket.close()
+        println("Client handler stopped")
     }
 }
