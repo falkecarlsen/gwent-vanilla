@@ -9,7 +9,7 @@ plugins {
 
 application {
     // Define the main class for the application.
-    mainClassName = 'gwent.server.GwentServerKt'
+    mainClassName = 'gwent.server.MainKt'
 }
 
 dependencies {
