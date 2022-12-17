@@ -19,7 +19,6 @@ The following is a list of features planned for this milestone:
 - The server API, including
   - POST request
     - Start new game
-    - Join game
     - Player actions
   - GET request
     - Current game state

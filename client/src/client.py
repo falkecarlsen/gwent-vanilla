@@ -1,6 +1,8 @@
 import json
+import socket
+from contextlib import contextmanager
 
-from data import Game, Card
+from game import Game, Card
 
 
 def pretty_print_game(game: Game):
@@ -61,29 +63,47 @@ def pretty_print_game(game: Game):
     print('/////////////////////////////////////////////////')
 
 
+class Message:
+    GET_GAME_STATE = 'get-game-state'
+    GAME_STATE = 'game-state'
+    RESTART_GAME = 'restart-game'
+
+
+class GwentClient:
+
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.reader = self.socket.makefile('r')
+        self.writer = self.socket.makefile('w')
+
+    def start(self):
+        print("Client starting up")
+        with self.socket:
+            self.socket.connect((self.host, self.port))
+            print("Connection established")
+            game = None
+            while True:
+                msg_raw = self.reader.readline()
+                js = json.loads(msg_raw)
+
+                if js['type'] == Message.GET_GAME_STATE:
+                    game = Game.from_json_dict(js['game'])
+                    pretty_print_game(game)
+
+    def close(self):
+        self.reader.close()
+        self.writer.close()
+        self.socket.close()
 
 
 if __name__ == '__main__':
-    print("Client starting up")
+    HOST = "127.0.0.1"
+    PORT = 8080
 
-    HOST = "127.0.0.1"  # The server's hostname or IP address
-    PORT = 8080  # The port used by the server
-
-    import socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        print("Connection established")
-        with s.makefile('r') as incoming:
-            with s.makefile('w') as outgoing:
-
-                # Server immediately sends us correct game state
-                response = incoming.readline().strip()
-                game = Game.from_json_dict(json.loads(response))
-
-                pretty_print_game(game)
-
-                outgoing.write("Hi there\n")
-                outgoing.flush()
-
-                response = incoming.readline().strip()
-                print(f"Server response: {response}")
+    client = GwentClient(HOST, PORT)
+    try:
+        client.start()
+    finally:
+        client.close()

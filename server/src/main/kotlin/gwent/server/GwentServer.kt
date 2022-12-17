@@ -29,30 +29,26 @@ private class GwentClientHandler(
     private val game: Game,
 ) : Thread() {
 
-    lateinit var out: PrintWriter
-    lateinit var `in`: BufferedReader
+    val messenger = Messenger(clientSocket)
 
     override fun run() {
         print("Client connected. ")
-        out = PrintWriter(clientSocket.getOutputStream(), true)
-        `in` = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
+        try {
+            println("Sending game to client...")
+            messenger.sendGameState(game)
 
-        println("Sending game to client...")
-        out.println(gwentKlaxonSetup().toJsonString(game.toDTO()))
-        out.flush()
-
-        // The main loop of the client handler
-        while (true) {
-            val inputLine = `in`.readLine()
-            if ("close" == inputLine) {
-                out.println("bye")
-                break
+            // The main loop of the client handler
+            while (true) {
+                val msg = messenger.receive()
+                when (msg) {
+                    is GetGameStateMsg -> messenger.sendGameState(game)
+                    else -> TODO("Handle message of type ${msg::class}")
+                }
             }
-            out.println("OK")
+        } finally {
+            messenger.close()
+            clientSocket.close()
         }
-        `in`.close()
-        out.close()
-        clientSocket.close()
         println("Client handler stopped.")
     }
 }
