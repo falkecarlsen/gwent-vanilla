@@ -44,7 +44,7 @@ class GetGameStateMsg : Message(GET_GAME_STATE)
  * Sent by server to update a client about the current game state.
  */
 class GameStateMsg(
-    val game: GameDTO,
+    val game: GameDTO?,
 ) : Message(GAME_STATE)
 
 /**
@@ -53,4 +53,9 @@ class GameStateMsg(
 class RestartGameMsg(
     val player1Name: String,
     val player2Name: String,
+
+    /**
+     * If true, a new game will be started, even if a game is already running.
+     */
+    val force: Boolean,
 ) : Message(RESTART_GAME)

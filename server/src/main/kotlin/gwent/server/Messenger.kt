@@ -31,8 +31,8 @@ class Messenger(
         return klx.parse<Message>(json) ?: throw MessengerParsingException(json)
     }
 
-    fun sendGameState(game: Game) {
-        val json = klx.toJsonString(GameStateMsg(game.toDTO()))
+    fun sendGameState(game: Game?) {
+        val json = klx.toJsonString(GameStateMsg(game?.toDTO()))
         out.println(json)
         out.flush()
     }

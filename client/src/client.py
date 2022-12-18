@@ -1,12 +1,12 @@
 import json
 import socket
-from contextlib import contextmanager
 
 from game import Game, Card
 
 
 def pretty_print_game(game: Game):
     """
+    Example:
     /////////////////////////////////////////////////
     Bob
     Hand: 4 cards
@@ -64,6 +64,10 @@ def pretty_print_game(game: Game):
 
 
 class Message:
+    """
+    Communication between server and client is done through messages.
+    Each message is a json object and the 'type' field indicates which kind of message it is.
+    """
     GET_GAME_STATE = 'get-game-state'
     GAME_STATE = 'game-state'
     RESTART_GAME = 'restart-game'
@@ -78,19 +82,28 @@ class GwentClient:
         self.reader = self.socket.makefile('r')
         self.writer = self.socket.makefile('w')
 
-    def start(self):
+    def run(self):
+        """
+        The main loop of the Gwent client.
+        """
         print("Client starting up")
         with self.socket:
             self.socket.connect((self.host, self.port))
-            print("Connection established")
+            print('Connection established')
             game = None
             while True:
                 msg_raw = self.reader.readline()
                 js = json.loads(msg_raw)
 
+                # Branch based on message type
                 if js['type'] == Message.GET_GAME_STATE:
-                    game = Game.from_json_dict(js['game'])
-                    pretty_print_game(game)
+                    if js['game'] is None:
+                        game = None
+                    else:
+                        game = Game.from_json_dict(js['game'])
+                        pretty_print_game(game)
+                else:
+                    print(f'ERROR: Unhandled message of type \'{js["type"]}\'')
 
     def close(self):
         self.reader.close()
@@ -99,11 +112,11 @@ class GwentClient:
 
 
 if __name__ == '__main__':
-    HOST = "127.0.0.1"
-    PORT = 8080
+    HOST = input('Host IP [default: 127.0.0.1]: ') or '127.0.0.1'
+    PORT = int(input('Port [default: 8080]: ') or 8080)
 
     client = GwentClient(HOST, PORT)
     try:
-        client.start()
+        client.run()
     finally:
         client.close()
