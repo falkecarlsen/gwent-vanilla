@@ -1,6 +1,7 @@
 import json
 import socket
 
+from action import try_parse_action
 from game import Game, Card
 
 
@@ -82,10 +83,19 @@ class GwentClient:
         self.reader = self.socket.makefile('r')
         self.writer = self.socket.makefile('w')
 
+        self.player_index = -1
+
     def run(self):
         """
         The main loop of the Gwent client.
         """
+        # Manually determine player index
+        while self.player_index not in [0, 1]:
+            try:
+                self.player_index = int(input('Your player index (0/1): '))
+            except ValueError:
+                pass
+
         print("Client starting up")
         with self.socket:
             self.socket.connect((self.host, self.port))
@@ -96,14 +106,28 @@ class GwentClient:
                 js = json.loads(msg_raw)
 
                 # Branch based on message type
-                if js['type'] == Message.GET_GAME_STATE:
+                if js['type'] == Message.GAME_STATE:
                     if js['game'] is None:
                         game = None
                     else:
                         game = Game.from_json_dict(js['game'])
                         pretty_print_game(game)
+                        if game.current_player == self.player_index:
+                            self.prompt_for_action()
                 else:
                     print(f'ERROR: Unhandled message of type \'{js["type"]}\'')
+
+    def prompt_for_action(self):
+        while True:
+            action_raw = input('Your move: ')
+            try:
+                action = try_parse_action(self.player_index, action_raw)
+                action_json = json.dumps(action.to_dict())
+                self.writer.writelines([action_json, '\n'])
+                return   # TODO Consider what happens if server does not like the given action
+            except ValueError as err:
+                print(f'Error: {err}')
+                pass
 
     def close(self):
         self.reader.close()
