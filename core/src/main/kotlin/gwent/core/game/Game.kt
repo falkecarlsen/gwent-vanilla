@@ -65,12 +65,13 @@ class Game(
      * If the [Action] is not valid, an [InvalidActionException] is thrown
      * detailing why the [action] is invalid.
      */
-    fun tryPerformAction(action: Action) {
+    fun tryPerformAction(action: Action): Boolean {
         if (validate(action)) {
             when (action) {
                 is PlayCard -> performPlayCard(action)
                 is Pass -> performPass(action)
             }
+            return true
         } else {
             TODO("Undocumented reason for action being invalid")
         }

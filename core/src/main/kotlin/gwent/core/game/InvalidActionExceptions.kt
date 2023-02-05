@@ -13,4 +13,4 @@ class OtherPlayersTurnException(val givenPlayerId: Int, val currentPlayerId: Int
     InvalidActionException("It is not player $givenPlayerId's turn. It is $currentPlayerId's turn.")
 
 class NotInHandException(val card: Card, val playerId: Int) :
-    InvalidActionException("The card \"${card.name}\" is not in the player $playerId's hand.")
+    InvalidActionException("The card \"${card.name}\" is not in player $playerId's hand.")
