@@ -132,10 +132,15 @@ sealed class Card(
             ClubsKing,
         )
 
-        fun fromName(id: String) = all().first { it.name == id }
-        fun fromIDOrNull(id: String) = all().firstOrNull { it.name == id }
+        fun fromName(id: String) = all().firstOrNull() { it.name == id } ?: throw InvalidCardNameException(id)
+        fun fromNameOrNull(id: String) = all().firstOrNull { it.name == id }
     }
 }
+
+/**
+ * Thrown when parsing card names and the given name is not valid.
+ */
+class InvalidCardNameException(val invalidName: String) : RuntimeException("'$invalidName' is not a valid card name")
 
 /**
  * Returns a shuffled deck with all cards.

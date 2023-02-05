@@ -1,6 +1,7 @@
 package gwent.server
 
 import gwent.core.game.Game
+import gwent.core.game.InvalidActionException
 import gwent.core.serialize.gwentKlaxonSetup
 import java.io.BufferedReader
 import java.io.Closeable
@@ -33,6 +34,18 @@ class Messenger(
 
     fun sendGameState(game: Game?) {
         val json = klx.toJsonString(GameStateMsg(game?.toDTO()))
+        out.println(json)
+        out.flush()
+    }
+
+    fun sendCommunicationError(details: String) {
+        val json = klx.toJsonString(CommunicationErrorMsg(details))
+        out.println(json)
+        out.flush()
+    }
+
+    fun sendInvalidAction(details: String) {
+        val json = klx.toJsonString(InvalidActionMsg(details))
         out.println(json)
         out.flush()
     }

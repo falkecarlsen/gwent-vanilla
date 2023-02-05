@@ -2,6 +2,7 @@ package gwent.server
 
 import com.beust.klaxon.TypeAdapter
 import com.beust.klaxon.TypeFor
+import gwent.core.serialize.ActionDTO
 import gwent.core.serialize.GameDTO
 import kotlin.reflect.KClass
 
@@ -14,6 +15,7 @@ class MessageTypeAdapter : TypeAdapter<Message> {
         Message.GET_GAME_STATE -> GetGameStateMsg::class
         Message.GAME_STATE -> GameStateMsg::class
         Message.RESTART_GAME -> RestartGameMsg::class
+        Message.ACTION -> ActionMsg::class
         else -> throw IllegalArgumentException("Unknown action type: $type")
     }
 }
@@ -29,9 +31,12 @@ sealed class Message(
     val type: String,
 ) {
     companion object {
+        const val COMMUNICATION_ERROR = "communication-error"
         const val GET_GAME_STATE = "get-game-state"
         const val GAME_STATE = "game-state"
         const val RESTART_GAME = "restart-game"
+        const val ACTION = "action"
+        const val INVALID_ACTION = "invalid-action"
     }
 }
 
@@ -59,3 +64,24 @@ class RestartGameMsg(
      */
     val force: Boolean,
 ) : Message(RESTART_GAME)
+
+/**
+ * Sent by client when the player wants to take an action.
+ */
+class ActionMsg(
+    val action: ActionDTO,
+) : Message(ACTION)
+
+/**
+ * Sent by server when player attempts to take an invalid action.
+ */
+class InvalidActionMsg(
+    val details: String,
+) : Message(INVALID_ACTION)
+
+/**
+ * Sent when an incoming message was not a valid message.
+ */
+class CommunicationErrorMsg(
+    val details: String,
+) : Message(COMMUNICATION_ERROR)

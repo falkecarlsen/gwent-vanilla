@@ -5,7 +5,7 @@ from action import try_parse_action
 from game import Game, Card
 
 
-def pretty_print_game(game: Game):
+def pretty_print_game(game: Game, pov: int):
     """
     Example:
     /////////////////////////////////////////////////
@@ -25,6 +25,8 @@ def pretty_print_game(game: Game):
     /////////////////////////////////////////////////
     """
 
+    opponent = 1 - pov
+
     def letter_to_suit_icon(letter: str) -> str:
         return {'S': '♠', 'D': '♦', 'C': '♣', 'H': '♥'}[letter]
 
@@ -37,30 +39,30 @@ def pretty_print_game(game: Game):
         return '---'
 
     print('/////////////////////////////////////////////////')
-    # Print enemy. Assume enemy is index 1
-    print(game.players[1].name, '<<' if game.current_player == 1 else '')
-    print(f'Hand: {len(game.players[1].hand)} cards')
-    if game.players[1].rounds_won > game.players[0].rounds_won:
+    # Print opponent
+    print(game.players[opponent].name, '<<' if game.current_player == opponent else '')
+    print(f'Hand: {len(game.players[opponent].hand)} cards')
+    if game.players[opponent].rounds_won > game.players[pov].rounds_won:
         print('*')
     else:
         print('')
 
     # Print player boards
-    print(f'      ♠ ({game.players[1].board.spades.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[1].board.spades.units))
-    print(f'({game.players[1].board.current_power:>2})  ♣ ({game.players[1].board.clubs.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[1].board.clubs.units))
-    print(f'      ♦ ({game.players[1].board.diamonds.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[1].board.diamonds.units))
+    print(f'      ♠ ({game.players[opponent].board.spades.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.spades.units))
+    print(f'({game.players[opponent].board.current_power:>2})  ♣ ({game.players[opponent].board.clubs.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.clubs.units))
+    print(f'      ♦ ({game.players[opponent].board.diamonds.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.diamonds.units))
     print(f'Weather: {pretty_weather(game)} +------------------------ Round: {game.round}')
-    print(f'      ♦ ({game.players[0].board.diamonds.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[0].board.diamonds.units))
-    print(f'({game.players[1].board.current_power:>2})  ♣ ({game.players[0].board.clubs.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[0].board.clubs.units))
-    print(f'      ♠ ({game.players[0].board.spades.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[0].board.spades.units))
+    print(f'      ♦ ({game.players[pov].board.diamonds.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.diamonds.units))
+    print(f'({game.players[pov].board.current_power:>2})  ♣ ({game.players[pov].board.clubs.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.clubs.units))
+    print(f'      ♠ ({game.players[pov].board.spades.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.spades.units))
 
-    # Print local player. Assume local player is index 0
-    if game.players[1].rounds_won < game.players[0].rounds_won:
+    # Print local player
+    if game.players[opponent].rounds_won < game.players[pov].rounds_won:
         print('*')
     else:
         print('')
-    print(game.players[0].name, '<<' if game.current_player == 0 else '')
-    print(f'Hand: ' + ' '.join(pretty_unit(u) for u in game.players[0].hand))
+    print(game.players[pov].name, '<<' if game.current_player == pov else '')
+    print(f'Hand: ' + ' '.join(pretty_unit(u) for u in game.players[pov].hand))
     print('/////////////////////////////////////////////////')
 
 
@@ -69,9 +71,12 @@ class Message:
     Communication between server and client is done through messages.
     Each message is a json object and the 'type' field indicates which kind of message it is.
     """
+    COMMUNICATION_ERROR = 'communication-error'
     GET_GAME_STATE = 'get-game-state'
     GAME_STATE = 'game-state'
     RESTART_GAME = 'restart-game'
+    ACTION = 'action'
+    INVALID_ACTION = 'invalid-action'
 
 
 class GwentClient:
@@ -111,9 +116,24 @@ class GwentClient:
                         game = None
                     else:
                         game = Game.from_json_dict(js['game'])
-                        pretty_print_game(game)
+                        pretty_print_game(game, self.player_index)
                         if game.current_player == self.player_index:
                             self.prompt_for_action()
+                        else:
+                            print('Waiting for opponents move...')
+                elif js['type'] == Message.INVALID_ACTION:
+                    # The player's action was invalid
+                    # Print why and then ensure we have the correct game state
+                    print(f'Invalid action: ' + js['details'])
+                    self.writer.writelines([json.dumps({'type': Message.GET_GAME_STATE}), '\n'])
+                    self.writer.flush()
+                elif js['type'] == Message.COMMUNICATION_ERROR:
+                    print('Communication error: ' + js['details'])
+                    if game is not None:
+                        if game.current_player == self.player_index:
+                            self.prompt_for_action()
+                        else:
+                            print('Waiting for your opponent\'s move...')
                 else:
                     print(f'ERROR: Unhandled message of type \'{js["type"]}\'')
 
@@ -122,8 +142,10 @@ class GwentClient:
             action_raw = input('Your move: ')
             try:
                 action = try_parse_action(self.player_index, action_raw)
-                action_json = json.dumps(action.to_dict())
+                action_msg = {'type': 'action', 'action': action.to_dict()}
+                action_json = json.dumps(action_msg)
                 self.writer.writelines([action_json, '\n'])
+                self.writer.flush()
                 return   # TODO Consider what happens if server does not like the given action
             except ValueError as err:
                 print(f'Error: {err}')
@@ -142,5 +164,7 @@ if __name__ == '__main__':
     client = GwentClient(HOST, PORT)
     try:
         client.run()
+    except ConnectionResetError:
+        print('Connection lost')
     finally:
         client.close()
