@@ -117,10 +117,14 @@ class GwentClient:
                     else:
                         game = Game.from_json_dict(js['game'])
                         pretty_print_game(game, self.player_index)
-                        if game.current_player == self.player_index:
-                            self.prompt_for_action()
+                        if game.round < 3:
+                            if game.current_player == self.player_index:
+                                self.prompt_for_action()
+                            else:
+                                print('Waiting for opponents move...')
                         else:
-                            print('Waiting for opponents move...')
+                            print('Game over')
+                            return
                 elif js['type'] == Message.INVALID_ACTION:
                     # The player's action was invalid
                     # Print why and then ensure we have the correct game state
@@ -146,7 +150,7 @@ class GwentClient:
                 action_json = json.dumps(action_msg)
                 self.writer.writelines([action_json, '\n'])
                 self.writer.flush()
-                return   # TODO Consider what happens if server does not like the given action
+                return
             except ValueError as err:
                 print(f'Error: {err}')
                 pass

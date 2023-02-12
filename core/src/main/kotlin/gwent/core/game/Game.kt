@@ -173,6 +173,6 @@ class Game(
         deck = deck.map { it.toDTO() },
         players = players.map { it.toDTO() },
         currentPlayer = currentPlayer,
-        round = 0,
+        round = round,
     )
 }
