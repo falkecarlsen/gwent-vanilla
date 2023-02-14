@@ -89,7 +89,14 @@ class Game(
         player.board.add(action.card)
         recalculatePower()
 
+        // Auto-pass if empty hand
+        if (player.hand.isEmpty())
+            player.hasPassed = true
+
         currentPlayer = 1 - currentPlayer
+
+        // Round may have ended due to auto-pass
+        checkIfRoundOver()
     }
 
     /**
@@ -101,7 +108,10 @@ class Game(
         players[action.player].hasPassed = true
         currentPlayer = 1 - currentPlayer
 
-        // Check if round is over
+        checkIfRoundOver()
+    }
+
+    private fun checkIfRoundOver() {
         if (players[0].hasPassed && players[1].hasPassed) {
 
             // Determine winner
@@ -116,7 +126,20 @@ class Game(
             players[0].prepareForNewRound()
             players[1].prepareForNewRound()
             round += 1
+
             if (roundWinner != null) currentPlayer = roundWinner.index
+
+            // Auto-end game if both players have empty hands
+            // Otherwise, auto-pass for players with empty hand
+            if (players[0].hand.isEmpty() && players[1].hand.isEmpty())
+                round = ROUNDS
+            else if (players[0].hand.isEmpty())
+                players[0].hasPassed = true
+            else if (players[1].hand.isEmpty())
+                players[1].hasPassed = true
+
+            // Swap current player in case of auto-pass
+            if (players[currentPlayer].hasPassed) currentPlayer = 1 - currentPlayer
 
             // Game is over if round == ROUNDS
         }
