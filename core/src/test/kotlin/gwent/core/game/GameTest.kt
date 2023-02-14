@@ -66,4 +66,20 @@ class GameTest {
         }
         assert(limit > 0)
     }
+
+    @Test
+    fun autoEnd01() {
+        // Check if game auto-ends when both players have empty hands
+        val game = Game("Alice", "Bob")
+        var limit = 10000
+        while (!game.isGameOver() && limit > 0) {
+            limit--
+            assert(game.players[0].hand.isNotEmpty() || game.players[0].hasPassed)
+            assert(game.players[1].hand.isNotEmpty() || game.players[1].hasPassed)
+            assert(game.round == 0) // Other rounds are skipped
+
+            game.tryPerformAction(PlayCard(game.currentPlayer, game.players[game.currentPlayer].hand.first()))
+        }
+        assert(limit > 0)
+    }
 }
