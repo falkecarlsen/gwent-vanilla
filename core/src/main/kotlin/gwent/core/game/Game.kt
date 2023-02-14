@@ -113,6 +113,11 @@ class Game(
         checkIfRoundOver()
     }
 
+    /**
+     * Checks if round is over and makes the game proceed to the next round if so.
+     * This includes determining the winner of the round, picking the starting player of the next round,
+     * as well as auto-passing and auto-ending if possible.
+     */
     private fun checkIfRoundOver() {
         if (players[0].hasPassed && players[1].hasPassed) {
 
