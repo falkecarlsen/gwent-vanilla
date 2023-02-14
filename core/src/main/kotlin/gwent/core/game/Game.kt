@@ -93,7 +93,9 @@ class Game(
         if (player.hand.isEmpty())
             player.hasPassed = true
 
-        currentPlayer = 1 - currentPlayer
+        // Swap to other player, unless they have passed
+        if (!players[1 - currentPlayer].hasPassed)
+            currentPlayer = 1 - currentPlayer
 
         // Round may have ended due to auto-pass
         checkIfRoundOver()
