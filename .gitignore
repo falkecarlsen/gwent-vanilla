@@ -5,5 +5,3 @@
 .gradle
 build/
 out/
-venv/
-__pycache__

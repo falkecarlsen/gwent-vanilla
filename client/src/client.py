@@ -162,12 +162,16 @@ class GwentClient:
 
 
 if __name__ == '__main__':
-    HOST = input('Host IP [default: 127.0.0.1]: ') or '127.0.0.1'
-    PORT = int(input('Port [default: 8080]: ') or 8080)
+    LOCAL_HOST = '127.0.0.1'
+    DEFAULT_PORT = 8080
+    host = input(f'Host IP [default: {LOCAL_HOST}]: ') or LOCAL_HOST
+    port = int(input(f'Port [default: {DEFAULT_PORT}]: ') or DEFAULT_PORT)
 
-    client = GwentClient(HOST, PORT)
     try:
+        client = GwentClient(host, port)
         client.run()
+    except ConnectionRefusedError:
+        print('Connection could not be established because the destination did not respond or refused')
     except ConnectionResetError:
         print('Connection lost')
     finally:
