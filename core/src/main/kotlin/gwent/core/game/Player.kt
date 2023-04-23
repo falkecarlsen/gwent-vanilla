@@ -17,7 +17,7 @@ class Player(
     /**
      * Clear this player's board and mark [hasPassed] as false.
      */
-    fun prepareForNewRound() {
+    fun resetBoardAndPassedFlag() {
         hasPassed = false
         for ((suit, row) in board.rows) {
             row.cards.clear()

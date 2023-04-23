@@ -130,11 +130,13 @@ class Game(
             }
 
             // Clean up for next round
-            players[0].prepareForNewRound()
-            players[1].prepareForNewRound()
+            players[0].resetBoardAndPassedFlag()
+            players[1].resetBoardAndPassedFlag()
             round += 1
 
             if (roundWinner != null) currentPlayer = roundWinner.index
+
+            recalculatePower()
 
             // Auto-end game if both players have empty hands
             // Otherwise, auto-pass for players with empty hand
