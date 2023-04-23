@@ -1,8 +1,8 @@
-import json
 import socket
 
 from action import try_parse_action
 from game import Game, Card
+from message import MessageType, Messenger
 
 
 def pretty_print_game(game: Game, pov: int):
@@ -66,27 +66,13 @@ def pretty_print_game(game: Game, pov: int):
     print('/////////////////////////////////////////////////')
 
 
-class Message:
-    """
-    Communication between server and client is done through messages.
-    Each message is a json object and the 'type' field indicates which kind of message it is.
-    """
-    COMMUNICATION_ERROR = 'communication-error'
-    GET_GAME_STATE = 'get-game-state'
-    GAME_STATE = 'game-state'
-    RESTART_GAME = 'restart-game'
-    ACTION = 'action'
-    INVALID_ACTION = 'invalid-action'
-
-
 class GwentClient:
 
     def __init__(self, host, port):
         self.host = host
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.reader = self.socket.makefile('r')
-        self.writer = self.socket.makefile('w')
+        self.messenger = Messenger(socket)
 
         self.player_index = -1
 
@@ -107,15 +93,14 @@ class GwentClient:
             print('Connection established')
             game = None
             while True:
-                msg_raw = self.reader.readline()
-                js = json.loads(msg_raw)
+                msg = self.messenger.receive()
 
                 # Branch based on message type
-                if js['type'] == Message.GAME_STATE:
-                    if js['game'] is None:
+                if msg['type'] == MessageType.GAME_STATE:
+                    if msg['game'] is None:
                         game = None
                     else:
-                        game = Game.from_json_dict(js['game'])
+                        game = Game.from_json_dict(msg['game'])
                         pretty_print_game(game, self.player_index)
                         if game.round < 3:
                             if game.current_player == self.player_index:
@@ -125,39 +110,34 @@ class GwentClient:
                         else:
                             print('Game over')
                             return
-                elif js['type'] == Message.INVALID_ACTION:
+                elif msg['type'] == MessageType.INVALID_ACTION:
                     # The player's action was invalid
                     # Print why and then ensure we have the correct game state
-                    print(f'Invalid action: ' + js['details'])
-                    self.writer.writelines([json.dumps({'type': Message.GET_GAME_STATE}), '\n'])
-                    self.writer.flush()
-                elif js['type'] == Message.COMMUNICATION_ERROR:
-                    print('Communication error: ' + js['details'])
+                    print(f'Invalid action: ' + msg['details'])
+                    self.messenger.sendRequestGameState()
+                elif msg['type'] == MessageType.COMMUNICATION_ERROR:
+                    print('Communication error: ' + msg['details'])
                     if game is not None:
                         if game.current_player == self.player_index:
                             self.prompt_for_action()
                         else:
                             print('Waiting for your opponent\'s move...')
                 else:
-                    print(f'ERROR: Unhandled message of type \'{js["type"]}\'')
+                    print(f'ERROR: Unhandled message of type \'{msg["type"]}\'')
 
     def prompt_for_action(self):
         while True:
-            action_raw = input('Your move: ')
             try:
+                action_raw = input('Your move: ')
                 action = try_parse_action(self.player_index, action_raw)
-                action_msg = {'type': 'action', 'action': action.to_dict()}
-                action_json = json.dumps(action_msg)
-                self.writer.writelines([action_json, '\n'])
-                self.writer.flush()
+                self.messenger.sendAction(action)
                 return
             except ValueError as err:
                 print(f'Error: {err}')
                 pass
 
     def close(self):
-        self.reader.close()
-        self.writer.close()
+        self.messenger.close()
         self.socket.close()
 
 

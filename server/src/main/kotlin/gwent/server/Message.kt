@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  */
 class MessageTypeAdapter : TypeAdapter<Message> {
     override fun classFor(type: Any): KClass<out Message> = when (type as String) {
-        Message.GET_GAME_STATE -> GetGameStateMsg::class
+        Message.REQUEST_GAME_STATE -> GetGameStateMsg::class
         Message.GAME_STATE -> GameStateMsg::class
         Message.RESTART_GAME -> RestartGameMsg::class
         Message.ACTION -> ActionMsg::class
@@ -32,7 +32,7 @@ sealed class Message(
 ) {
     companion object {
         const val COMMUNICATION_ERROR = "communication-error"
-        const val GET_GAME_STATE = "get-game-state"
+        const val REQUEST_GAME_STATE = "request-game-state"
         const val GAME_STATE = "game-state"
         const val RESTART_GAME = "restart-game"
         const val ACTION = "action"
@@ -43,7 +43,7 @@ sealed class Message(
 /**
  * Sent by client to request the current game state.
  */
-class GetGameStateMsg : Message(GET_GAME_STATE)
+class GetGameStateMsg : Message(REQUEST_GAME_STATE)
 
 /**
  * Sent by server to update a client about the current game state.
