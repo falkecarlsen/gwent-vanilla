@@ -1,5 +1,6 @@
 package gwent.core.game
 
+import gwent.core.testing.TestSetup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -81,5 +82,29 @@ class GameTest {
             game.tryPerformAction(PlayCard(game.currentPlayer, game.players[game.currentPlayer].hand.first()))
         }
         assert(limit > 0)
+    }
+
+    @Test
+    fun postRoundCleanup01() {
+        // Check if board, passed flags, and round variables are updated correctly when round ends
+        val game = Game("Alice", "Bob", TestSetup.variedDeck(), 0)
+        game.tryPerformAction(PlayCard(0, Card.Diamond4))
+        game.tryPerformAction(PlayCard(1, Card.Clubs3))
+
+        game.tryPerformAction(Pass(0))
+
+        assertEquals(0, game.round)
+        assert(game.players[0].hasPassed)
+        assert(!game.players[1].hasPassed)
+        assertEquals(4, game.players[0].board.currentPower)
+        assertEquals(3, game.players[1].board.currentPower)
+
+        game.tryPerformAction(Pass(1))
+
+        assertEquals(1, game.round)
+        assert(!game.players[0].hasPassed)
+        assert(!game.players[1].hasPassed)
+        assertEquals(0, game.players[0].board.currentPower)
+        assertEquals(0, game.players[1].board.currentPower)
     }
 }
