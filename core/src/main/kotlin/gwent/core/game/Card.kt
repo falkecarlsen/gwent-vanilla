@@ -1,5 +1,8 @@
 package gwent.core.game
 
+import gwent.core.game.abilities.OngoingEffect
+import gwent.core.game.abilities.CaptainOngoingEffect
+import gwent.core.game.abilities.MilitiaOngoingEffect
 import gwent.core.serialize.CardDTO
 
 /**
@@ -44,44 +47,51 @@ enum class RowSuit {
  */
 sealed class Card(
     val name: String,
-    val basePower: Int,
+    val numeric: Int,
     val suit: Suit,
+    val basePower: Int,
+    val tags: List<Tag> = listOf(),
+    val ongoing: OngoingEffect? = null,
 ) {
-    object Spades3 : Card("S3", 3, Suit.SPADES)
-    object Spades4 : Card("S4", 4, Suit.SPADES)
-    object Spades5 : Card("S5", 5, Suit.SPADES)
-    object Spades6 : Card("S6", 6, Suit.SPADES)
-    object Spades7 : Card("S7", 7, Suit.SPADES)
-    object Spades8 : Card("S8", 8, Suit.SPADES)
-    object Spades9 : Card("S9", 9, Suit.SPADES)
-    object Spades10 : Card("S10", 10, Suit.SPADES)
-    object SpadesJack : Card("SJ", 11, Suit.SPADES)
-    object SpadesQueen : Card("SQ", 12, Suit.SPADES)
-    object SpadesKing : Card("SK", 13, Suit.SPADES)
+    var currentPower: Int = basePower
+    var owner: Int? = null
+    var row: RowSuit? = null
 
-    object Diamond3 : Card("D3", 3, Suit.DIAMONDS)
-    object Diamond4 : Card("D4", 4, Suit.DIAMONDS)
-    object Diamond5 : Card("D5", 5, Suit.DIAMONDS)
-    object Diamond6 : Card("D6", 6, Suit.DIAMONDS)
-    object Diamond7 : Card("D7", 7, Suit.DIAMONDS)
-    object Diamond8 : Card("D8", 8, Suit.DIAMONDS)
-    object Diamond9 : Card("D9", 9, Suit.DIAMONDS)
-    object Diamond10 : Card("D10", 10, Suit.DIAMONDS)
-    object DiamondJack : Card("DJ", 11, Suit.DIAMONDS)
-    object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS)
-    object DiamondKing : Card("DK", 13, Suit.DIAMONDS)
+    object Spades3 : Card("S3", 3, Suit.SPADES, 3)
+    object Spades4 : Card("S4", 4, Suit.SPADES, 0, listOf(Tag.Militia), MilitiaOngoingEffect())
+    object Spades5 : Card("S5", 5, Suit.SPADES, 5)
+    object Spades6 : Card("S6", 6, Suit.SPADES, 6)
+    object Spades7 : Card("S7", 7, Suit.SPADES, 7)
+    object Spades8 : Card("S8", 8, Suit.SPADES, 8)
+    object Spades9 : Card("S9", 9, Suit.SPADES, 9)
+    object Spades10 : Card("S10", 10, Suit.SPADES, 10)
+    object SpadesJack : Card("SJ", 11, Suit.SPADES, 0, ongoing = CaptainOngoingEffect())
+    object SpadesQueen : Card("SQ", 12, Suit.SPADES, 10)
+    object SpadesKing : Card("SK", 13, Suit.SPADES, 10)
 
-    object Clubs3 : Card("C3", 3, Suit.CLUBS)
-    object Clubs4 : Card("C4", 4, Suit.CLUBS)
-    object Clubs5 : Card("C5", 5, Suit.CLUBS)
-    object Clubs6 : Card("C6", 6, Suit.CLUBS)
-    object Clubs7 : Card("C7", 7, Suit.CLUBS)
-    object Clubs8 : Card("C8", 8, Suit.CLUBS)
-    object Clubs9 : Card("C9", 9, Suit.CLUBS)
-    object Clubs10 : Card("C10", 10, Suit.CLUBS)
-    object ClubsJack : Card("CJ", 11, Suit.CLUBS)
-    object ClubsQueen : Card("CQ", 12, Suit.CLUBS)
-    object ClubsKing : Card("CK", 13, Suit.CLUBS)
+    object Diamond3 : Card("D3", 3, Suit.DIAMONDS, 3)
+    object Diamond4 : Card("D4", 4, Suit.DIAMONDS, 0, listOf(Tag.Militia), MilitiaOngoingEffect())
+    object Diamond5 : Card("D5", 5, Suit.DIAMONDS, 5)
+    object Diamond6 : Card("D6", 6, Suit.DIAMONDS, 6)
+    object Diamond7 : Card("D7", 7, Suit.DIAMONDS, 7)
+    object Diamond8 : Card("D8", 8, Suit.DIAMONDS, 8)
+    object Diamond9 : Card("D9", 9, Suit.DIAMONDS, 9)
+    object Diamond10 : Card("D10", 10, Suit.DIAMONDS, 10)
+    object DiamondJack : Card("DJ", 11, Suit.DIAMONDS, 0, ongoing = CaptainOngoingEffect())
+    object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS, 10)
+    object DiamondKing : Card("DK", 13, Suit.DIAMONDS, 10)
+
+    object Clubs3 : Card("C3", 3, Suit.CLUBS, 3)
+    object Clubs4 : Card("C4", 4, Suit.CLUBS, 0, listOf(Tag.Militia), MilitiaOngoingEffect())
+    object Clubs5 : Card("C5", 5, Suit.CLUBS, 5)
+    object Clubs6 : Card("C6", 6, Suit.CLUBS, 6)
+    object Clubs7 : Card("C7", 7, Suit.CLUBS, 7)
+    object Clubs8 : Card("C8", 8, Suit.CLUBS, 8)
+    object Clubs9 : Card("C9", 9, Suit.CLUBS, 9)
+    object Clubs10 : Card("C10", 10, Suit.CLUBS, 10)
+    object ClubsJack : Card("CJ", 11, Suit.CLUBS, 0, ongoing = CaptainOngoingEffect())
+    object ClubsQueen : Card("CQ", 12, Suit.CLUBS, 10)
+    object ClubsKing : Card("CK", 13, Suit.CLUBS, 10)
 
     /**
      * Convert to data transfer object.

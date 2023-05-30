@@ -1,5 +1,6 @@
 package gwent.core.game
 
+import gwent.core.game.abilities.OngoingEffect
 import gwent.core.serialize.GameDTO
 import kotlin.random.Random
 
@@ -28,6 +29,8 @@ class Game(
         players[0].hand.addAll(deck.subList(0, INIT_HAND_SIZE))
         players[1].hand.addAll(deck.subList(INIT_HAND_SIZE, 2 * INIT_HAND_SIZE))
         deck.subList(0, INIT_HAND_SIZE * 2).clear()
+        players[0].hand.forEach { it.owner = 0 }
+        players[1].hand.forEach { it.owner = 1 }
     }
 
     /**
@@ -185,17 +188,61 @@ class Game(
      * sure that all currentPower variables are up-to-date.
      */
     fun recalculatePower() {
+
+        val ongoingEffects = mutableListOf<Pair<Card, OngoingEffect>>()
+
+        // Reset cards to their base power and collect active ongoing effects
+        for (player in players) {
+            val board = player.board
+            for ((_, row) in board.rows) {
+                for (card in row.cards) {
+                    card.currentPower = card.basePower
+                    if (card.ongoing != null) ongoingEffects.add(Pair(card, card.ongoing))
+                }
+            }
+        }
+
+        // Apply ongoing effects
+        for ((source, effect) in ongoingEffects.sortedBy { it.second.order() }) {
+            effect.apply(source, this)
+        }
+
+        // Propagate current power to rows and board
         for (player in players) {
             val board = player.board
             board.currentPower = 0
-            for ((suit, row) in board.rows) {
+            for ((_, row) in board.rows) {
                 row.currentPower = 0
                 for (card in row.cards) {
-                    row.currentPower += card.basePower
+                    row.currentPower += card.currentPower
                 }
                 board.currentPower += row.currentPower
             }
         }
+    }
+
+    /**
+     * Query the board to get a collection of cards satisfying all the given requirements.
+     */
+    fun queryBoard(
+        player: Int? = null,
+        row: RowSuit? = null,
+        suit: Suit? = null,
+        tags: List<Tag>? = null,
+    ): List<Card> {
+        val res = mutableListOf<Card>()
+        for (pl in players) {
+            if (player != null && player != pl.index) continue
+            for ((rs, r) in pl.board.rows) {
+                if (row != null && row != rs) continue
+                for (card in r.cards) {
+                    if (suit != null && suit != card.suit) continue
+                    if (tags != null && !card.tags.containsAll(tags)) continue
+                    res.add(card)
+                }
+            }
+        }
+        return res
     }
 
     /**

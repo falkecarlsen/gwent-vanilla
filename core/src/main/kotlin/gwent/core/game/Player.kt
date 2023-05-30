@@ -20,6 +20,7 @@ class Player(
     fun resetBoardAndPassedFlag() {
         hasPassed = false
         for ((suit, row) in board.rows) {
+            row.cards.forEach { it.owner = null; it.row = null }
             row.cards.clear()
         }
     }
