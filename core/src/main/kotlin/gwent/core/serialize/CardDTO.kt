@@ -6,6 +6,8 @@ package gwent.core.serialize
  */
 class CardDTO(
     val name: String,
+    val numeric: Int,
     val basePower: Int,
     val suit: String,
+    val currentPower: Int,
 )
