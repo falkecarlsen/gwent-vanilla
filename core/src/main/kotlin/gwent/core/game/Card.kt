@@ -67,7 +67,7 @@ sealed class Card(
     object Spades9 : Card("S9", 9, Suit.SPADES, 9, listOf(Tag.Unit))
     object Spades10 : Card("S10", 10, Suit.SPADES, 10, listOf(Tag.Unit))
     object SpadesJack : Card("SJ", 11, Suit.SPADES, 0, listOf(Tag.Unit), CaptainOngoingEffect())
-    object SpadesQueen : Card("SQ", 12, Suit.SPADES, 10, listOf(Tag.Unit))
+    object SpadesQueen : Card("SQ", 12, Suit.SPADES, 10, listOf(Tag.Unit, Tag.Queen))
     object SpadesKing : Card("SK", 13, Suit.SPADES, 10, listOf(Tag.Unit))
 
     object Diamond3 : Card("D3", 3, Suit.DIAMONDS, 3, listOf(Tag.Unit))
@@ -79,7 +79,7 @@ sealed class Card(
     object Diamond9 : Card("D9", 9, Suit.DIAMONDS, 9, listOf(Tag.Unit))
     object Diamond10 : Card("D10", 10, Suit.DIAMONDS, 10, listOf(Tag.Unit))
     object DiamondJack : Card("DJ", 11, Suit.DIAMONDS, 0, listOf(Tag.Unit), CaptainOngoingEffect())
-    object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS, 10, listOf(Tag.Unit))
+    object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS, 10, listOf(Tag.Unit, Tag.Queen))
     object DiamondKing : Card("DK", 13, Suit.DIAMONDS, 10, listOf(Tag.Unit))
 
     object Clubs3 : Card("C3", 3, Suit.CLUBS, 3, listOf(Tag.Unit))
@@ -91,7 +91,7 @@ sealed class Card(
     object Clubs9 : Card("C9", 9, Suit.CLUBS, 9, listOf(Tag.Unit))
     object Clubs10 : Card("C10", 10, Suit.CLUBS, 10, listOf(Tag.Unit))
     object ClubsJack : Card("CJ", 11, Suit.CLUBS, 0, listOf(Tag.Unit), CaptainOngoingEffect())
-    object ClubsQueen : Card("CQ", 12, Suit.CLUBS, 10, listOf(Tag.Unit))
+    object ClubsQueen : Card("CQ", 12, Suit.CLUBS, 10, listOf(Tag.Unit, Tag.Queen))
     object ClubsKing : Card("CK", 13, Suit.CLUBS, 10, listOf(Tag.Unit))
 
     /**
