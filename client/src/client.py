@@ -30,9 +30,9 @@ def pretty_print_game(game: Game, pov: int):
     def letter_to_suit_icon(letter: str) -> str:
         return {'S': '♠', 'D': '♦', 'C': '♣', 'H': '♥'}[letter]
 
-    def pretty_unit(unit: Card, show_power: bool) -> str:
+    def pretty_unit(unit: Card, hide_power: bool=False) -> str:
         base = letter_to_suit_icon(unit.name[0]) + unit.name[1:]
-        if show_power and unit.numeric != unit.current_power:
+        if not hide_power and unit.numeric != unit.current_power:
             base += f'({unit.current_power})'
         return base
 
@@ -46,18 +46,18 @@ def pretty_print_game(game: Game, pov: int):
     print('*' * game.players[opponent].rounds_won)
 
     # Print player boards
-    print(f'      ♠ ({game.players[opponent].board.spades.current_power:>2}) │ ' + ' '.join(pretty_unit(u, True) for u in game.players[opponent].board.spades.units))
-    print(f'({game.players[opponent].board.current_power:>2})  ♣ ({game.players[opponent].board.clubs.current_power:>2}) │ ' + ' '.join(pretty_unit(u, True) for u in game.players[opponent].board.clubs.units))
-    print(f'      ♦ ({game.players[opponent].board.diamonds.current_power:>2}) │ ' + ' '.join(pretty_unit(u, True) for u in game.players[opponent].board.diamonds.units))
+    print(f'      ♠ ({game.players[opponent].board.spades.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.spades.units))
+    print(f'({game.players[opponent].board.current_power:>2})  ♣ ({game.players[opponent].board.clubs.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.clubs.units))
+    print(f'      ♦ ({game.players[opponent].board.diamonds.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.diamonds.units))
     print(f'Weather: {pretty_weather(game)} ├───────────────────────── Round: {game.round}')
-    print(f'      ♦ ({game.players[pov].board.diamonds.current_power:>2}) │ ' + ' '.join(pretty_unit(u, True) for u in game.players[pov].board.diamonds.units))
-    print(f'({game.players[pov].board.current_power:>2})  ♣ ({game.players[pov].board.clubs.current_power:>2}) │ ' + ' '.join(pretty_unit(u, True) for u in game.players[pov].board.clubs.units))
-    print(f'      ♠ ({game.players[pov].board.spades.current_power:>2}) │ ' + ' '.join(pretty_unit(u, True) for u in game.players[pov].board.spades.units))
+    print(f'      ♦ ({game.players[pov].board.diamonds.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.diamonds.units))
+    print(f'({game.players[pov].board.current_power:>2})  ♣ ({game.players[pov].board.clubs.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.clubs.units))
+    print(f'      ♠ ({game.players[pov].board.spades.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.spades.units))
 
     # Print local player
     print('*' * game.players[pov].rounds_won)
     print(game.players[pov].name, '<<' if game.current_player == pov else '')
-    print(f'Hand: ' + ' '.join(pretty_unit(u, False) for u in game.players[pov].hand))
+    print(f'Hand: ' + ' '.join(pretty_unit(u, hide_power=True) for u in game.players[pov].hand))
     print('/////////////////////////////////////////////////')
 
 
