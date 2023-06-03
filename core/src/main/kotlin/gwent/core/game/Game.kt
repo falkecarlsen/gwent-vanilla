@@ -90,6 +90,7 @@ class Game(
         // Move card from hand to board and recalculate power
         player.hand.remove(action.card)
         player.board.add(action.card)
+        if (Tag.Unit in action.card.tags) player.lastPlayedUnit = action.card
         recalculatePower()
 
         // Auto-pass if empty hand
