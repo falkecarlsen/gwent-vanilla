@@ -87,8 +87,12 @@ class Game(
         // Move card from hand to board and recalculate power
         action.card.immediate?.apply(action.card, this)
         player.hand.remove(action.card)
-        val board = if (Tag.Spy !in action.card.tags) player.board else players[1- player.index].board
-        board.add(action.card)
+        if (Tag.Spy !in action.card.tags) {
+            player.board.add(action.card)
+        } else {
+            action.card.owner = 1 - player.index
+            players[1 - player.index].board.add(action.card)
+        }
         recalculatePower()
 
         // Auto-pass if empty hand
@@ -223,7 +227,7 @@ class Game(
     fun drawCards(playerId: Int, count: Int) {
         players[playerId].hand.addAll(deck.subList(0, count))
         deck.subList(0, count).clear()
-        players[playerId].hand.forEach { it.owner = 0 }
+        players[playerId].hand.forEach { it.owner = playerId }
     }
 
     /**
