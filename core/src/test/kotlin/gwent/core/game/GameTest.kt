@@ -89,7 +89,7 @@ class GameTest {
         // Check if board, passed flags, and round variables are updated correctly when round ends
         val game = Game("Alice", "Bob", TestSetup.variedDeck(), 0)
         game.tryPerformAction(PlayCard(0, Card.Diamond4))
-        game.tryPerformAction(PlayCard(1, Card.Clubs3))
+        game.tryPerformAction(PlayCard(1, Card.Clubs5))
 
         game.tryPerformAction(Pass(0))
 
@@ -97,7 +97,7 @@ class GameTest {
         assert(game.players[0].hasPassed)
         assert(!game.players[1].hasPassed)
         assertEquals(4, game.players[0].board.currentPower)
-        assertEquals(3, game.players[1].board.currentPower)
+        assertEquals(5, game.players[1].board.currentPower)
 
         game.tryPerformAction(Pass(1))
 

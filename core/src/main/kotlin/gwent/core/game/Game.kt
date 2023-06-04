@@ -26,11 +26,8 @@ class Game(
 
     init {
         // Immediately deal cards to both players
-        players[0].hand.addAll(deck.subList(0, INIT_HAND_SIZE))
-        players[1].hand.addAll(deck.subList(INIT_HAND_SIZE, 2 * INIT_HAND_SIZE))
-        deck.subList(0, INIT_HAND_SIZE * 2).clear()
-        players[0].hand.forEach { it.owner = 0 }
-        players[1].hand.forEach { it.owner = 1 }
+        drawCards(0, INIT_HAND_SIZE)
+        drawCards(1, INIT_HAND_SIZE)
     }
 
     /**
@@ -88,8 +85,10 @@ class Game(
         val player = players[action.player]
 
         // Move card from hand to board and recalculate power
+        action.card.immediate?.apply(action.card, this)
         player.hand.remove(action.card)
-        player.board.add(action.card)
+        val board = if (Tag.Spy !in action.card.tags) player.board else players[1- player.index].board
+        board.add(action.card)
         recalculatePower()
 
         // Auto-pass if empty hand
@@ -219,6 +218,12 @@ class Game(
                 board.currentPower += row.currentPower
             }
         }
+    }
+
+    fun drawCards(playerId: Int, count: Int) {
+        players[playerId].hand.addAll(deck.subList(0, count))
+        deck.subList(0, count).clear()
+        players[playerId].hand.forEach { it.owner = 0 }
     }
 
     /**
