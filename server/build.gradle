@@ -13,14 +13,13 @@ application {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
     implementation project(":core")
 
     // Use Klaxon for json serialization
     implementation 'com.beust:klaxon:5.6'
-
-    // Use the Kotlin test library.
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 }
 
 compileKotlin {
