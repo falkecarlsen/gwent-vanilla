@@ -2,10 +2,7 @@ package gwent.core.serialize
 
 import com.beust.klaxon.TypeAdapter
 import com.beust.klaxon.TypeFor
-import gwent.core.game.Action
-import gwent.core.game.Card
-import gwent.core.game.Pass
-import gwent.core.game.PlayCard
+import gwent.core.game.*
 import kotlin.reflect.KClass
 
 /**
@@ -48,8 +45,9 @@ sealed class ActionDTO(
 class PlayCardDTO(
     player: Int,
     val cardName: String,
+    val row: String?,
 ) : ActionDTO(PLAY_CARD_TYPE, player) {
-    override fun toAction() = PlayCard(player, Card.fromName(cardName))
+    override fun toAction() = PlayCard(player, Card.fromName(cardName), row?.let { RowSuit.fromName(row) })
 }
 
 /**

@@ -9,8 +9,8 @@ class PlayCardTest {
     @Test
     fun playCard01() {
         // Check if playing a card works
-        val game = Game("Alice", "Bob", TestSetup.variedDeck(), 0)
-        val action = PlayCard(0, Card.Diamond4)
+        val game = Game("Alice", "Bob", TestSetup.stackedDeck(p0Cards = listOf(Card.Diamond4)), 0)
+        val action = PlayCard(0, Card.Diamond4, null)
 
         assert(game.players[0].hand.contains(Card.Diamond4))
         assert(game.players[0].board.rows[RowSuit.DIAMONDS]!!.cards.isEmpty())
@@ -30,8 +30,8 @@ class PlayCardTest {
     @Test
     fun playCard02() {
         // Check that it is not possible to play a card you do not have
-        val game = Game("Alice", "Bob", TestSetup.variedDeck(), 0)
-        val action = PlayCard(0, Card.Clubs4)
+        val game = Game("Alice", "Bob", TestSetup.stackedDeck(p1Cards = listOf(Card.Clubs4)), 0)
+        val action = PlayCard(0, Card.Clubs4, null)
 
         assert(!game.players[0].hand.contains(Card.Clubs4))
         assertFailsWith(NotInHandException::class) {

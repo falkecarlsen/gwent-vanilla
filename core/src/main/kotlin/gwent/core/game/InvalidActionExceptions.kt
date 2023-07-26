@@ -14,3 +14,7 @@ class OtherPlayersTurnException(val givenPlayerId: Int, val currentPlayerId: Int
 
 class NotInHandException(val card: Card, val playerId: Int) :
     InvalidActionException("The card \"${card.name}\" is not in player $playerId's hand.")
+
+class MissingRowParameterException(val card: Card) : InvalidActionException("Row must specified for wild cards")
+
+class InvalidRowParameterException(val card: Card) : InvalidActionException("Non-wild cards like ${card.name} must be played in the row matching their suite")

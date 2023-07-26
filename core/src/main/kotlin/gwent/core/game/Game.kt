@@ -60,6 +60,14 @@ class Game(
         // Check if player is holding the card
         if (!player.hand.contains(action.card)) throw NotInHandException(action.card, action.player)
 
+        // Cards must be played in row matching its suit,
+        // except Wild cards which can be played in any row
+        if (Tag.Wild in action.card.tags && action.row == null) {
+            throw MissingRowParameterException(action.card)
+        } else if (Tag.Wild !in action.card.tags && action.row != null && action.row != action.card.suit.toRowSuit()) {
+            throw InvalidRowParameterException(action.card)
+        }
+
         return true
     }
 
@@ -88,8 +96,9 @@ class Game(
         val player = players[action.player]
 
         // Move card from hand to board and recalculate power
+        val rowSuit = action.row ?: action.card.suit.toRowSuit()!!
         player.hand.remove(action.card)
-        player.board.add(action.card)
+        player.board.add(action.card, rowSuit)
         recalculatePower()
 
         // Auto-pass if empty hand
