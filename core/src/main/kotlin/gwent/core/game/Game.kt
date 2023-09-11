@@ -26,11 +26,8 @@ class Game(
 
     init {
         // Immediately deal cards to both players
-        players[0].hand.addAll(deck.subList(0, INIT_HAND_SIZE))
-        players[1].hand.addAll(deck.subList(INIT_HAND_SIZE, 2 * INIT_HAND_SIZE))
-        deck.subList(0, INIT_HAND_SIZE * 2).clear()
-        players[0].hand.forEach { it.owner = 0 }
-        players[1].hand.forEach { it.owner = 1 }
+        drawCards(0, INIT_HAND_SIZE)
+        drawCards(1, INIT_HAND_SIZE)
     }
 
     /**
@@ -68,6 +65,10 @@ class Game(
             throw InvalidRowParameterException(action.card)
         }
 
+        // Only allow one queen on the board
+        if (Tag.Queen in action.card.tags && queryBoard(tags = listOf(Tag.Queen)).isNotEmpty())
+            throw ExistingQueenException(action.card, action.player)
+
         return true
     }
 
@@ -97,8 +98,15 @@ class Game(
 
         // Move card from hand to board and recalculate power
         val rowSuit = action.row ?: action.card.suit.toRowSuit()!!
+        action.card.immediate?.apply(action.card, this)
         player.hand.remove(action.card)
-        player.board.add(action.card, rowSuit)
+        if (Tag.Spy !in action.card.tags) {
+            player.board.add(action.card, rowSuit)
+        } else {
+            action.card.owner = 1 - player.index
+            players[1 - player.index].board.add(action.card, rowSuit)
+        }
+        if (Tag.Unit in action.card.tags) player.lastPlayedUnit = action.card
         recalculatePower()
 
         // Auto-pass if empty hand
@@ -228,6 +236,12 @@ class Game(
                 board.currentPower += row.currentPower
             }
         }
+    }
+
+    fun drawCards(playerId: Int, count: Int) {
+        players[playerId].hand.addAll(deck.subList(0, count))
+        deck.subList(0, count).clear()
+        players[playerId].hand.forEach { it.owner = playerId }
     }
 
     /**

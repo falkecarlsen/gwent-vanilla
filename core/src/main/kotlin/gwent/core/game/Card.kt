@@ -1,8 +1,6 @@
 package gwent.core.game
 
-import gwent.core.game.abilities.OngoingEffect
-import gwent.core.game.abilities.CaptainOngoingEffect
-import gwent.core.game.abilities.MilitiaOngoingEffect
+import gwent.core.game.abilities.*
 import gwent.core.serialize.CardDTO
 
 /**
@@ -72,66 +70,69 @@ sealed class Card(
     val basePower: Int,
     val tags: List<Tag> = listOf(),
     val ongoing: OngoingEffect? = null,
+    val immediate: ImmediateEffect? = null,
 ) {
     var currentPower: Int = basePower
     var owner: Int? = null
     var row: RowSuit? = null
 
-    object Hearts3 : Card("H3", 3, Suit.HEARTS, 3, listOf(Tag.Wild))
-    object Hearts4 : Card("H4", 4, Suit.HEARTS, 0, listOf(Tag.Wild, Tag.Militia), MilitiaOngoingEffect())
-    object Hearts5 : Card("H5", 5, Suit.HEARTS, 5, listOf(Tag.Wild))
-    object Hearts6 : Card("H6", 6, Suit.HEARTS, 6, listOf(Tag.Wild))
-    object Hearts7 : Card("H7", 7, Suit.HEARTS, 7, listOf(Tag.Wild))
-    object Hearts8 : Card("H8", 8, Suit.HEARTS, 8, listOf(Tag.Wild))
-    object Hearts9 : Card("H9", 9, Suit.HEARTS, 9, listOf(Tag.Wild))
-    object Hearts10 : Card("H10", 10, Suit.HEARTS, 10, listOf(Tag.Wild))
-    object HeartsJack : Card("HJ", 11, Suit.HEARTS, 0, listOf(Tag.Wild), CaptainOngoingEffect())
-    object HeartsQueen : Card("HQ", 12, Suit.HEARTS, 10, listOf(Tag.Wild))
-    object HeartsKing : Card("HK", 13, Suit.HEARTS, 10, listOf(Tag.Wild))
+    object Hearts3 : Card("H3", 3, Suit.HEARTS, 3, listOf(Tag.Unit, Tag.Wild, Tag.Spy), null, DrawCardsImmediateEffect())
+    object Hearts4 : Card("H4", 4, Suit.HEARTS, 0, listOf(Tag.Unit, Tag.Wild, Tag.Militia), MilitiaOngoingEffect())
+    object Hearts5 : Card("H5", 5, Suit.HEARTS, 5, listOf(Tag.Unit, Tag.Wild))
+    object Hearts6 : Card("H6", 6, Suit.HEARTS, 6, listOf(Tag.Unit, Tag.Wild))
+    object Hearts7 : Card("H7", 7, Suit.HEARTS, 7, listOf(Tag.Unit, Tag.Wild), CavalryOngoingEffect())
+    object Hearts8 : Card("H8", 8, Suit.HEARTS, 8, listOf(Tag.Unit, Tag.Wild))
+    object Hearts9 : Card("H9", 9, Suit.HEARTS, 9, listOf(Tag.Unit, Tag.Wild))
+    object Hearts10 : Card("H10", 10, Suit.HEARTS, 10, listOf(Tag.Unit, Tag.Wild))
+    object HeartsJack : Card("HJ", 11, Suit.HEARTS, 0, listOf(Tag.Unit, Tag.Wild), CaptainOngoingEffect())
+    object HeartsQueen : Card("HQ", 12, Suit.HEARTS, 10, listOf(Tag.Unit, Tag.Wild, Tag.Queen))
+    object HeartsKing : Card("HK", 13, Suit.HEARTS, 10, listOf(Tag.Unit, Tag.Wild))
 
-    object Spades3 : Card("S3", 3, Suit.SPADES, 3)
-    object Spades4 : Card("S4", 4, Suit.SPADES, 0, listOf(Tag.Militia), MilitiaOngoingEffect())
-    object Spades5 : Card("S5", 5, Suit.SPADES, 5)
-    object Spades6 : Card("S6", 6, Suit.SPADES, 6)
-    object Spades7 : Card("S7", 7, Suit.SPADES, 7)
-    object Spades8 : Card("S8", 8, Suit.SPADES, 8)
-    object Spades9 : Card("S9", 9, Suit.SPADES, 9)
-    object Spades10 : Card("S10", 10, Suit.SPADES, 10)
-    object SpadesJack : Card("SJ", 11, Suit.SPADES, 0, ongoing = CaptainOngoingEffect())
-    object SpadesQueen : Card("SQ", 12, Suit.SPADES, 10)
-    object SpadesKing : Card("SK", 13, Suit.SPADES, 10)
+    object Spades3 : Card("S3", 3, Suit.SPADES, 3, listOf(Tag.Unit, Tag.Spy), null, DrawCardsImmediateEffect())
+    object Spades4 : Card("S4", 4, Suit.SPADES, 0, listOf(Tag.Unit, Tag.Militia), MilitiaOngoingEffect())
+    object Spades5 : Card("S5", 5, Suit.SPADES, 5, listOf(Tag.Unit))
+    object Spades6 : Card("S6", 6, Suit.SPADES, 6, listOf(Tag.Unit))
+    object Spades7 : Card("S7", 7, Suit.SPADES, 7, listOf(Tag.Unit), CavalryOngoingEffect())
+    object Spades8 : Card("S8", 8, Suit.SPADES, 8, listOf(Tag.Unit))
+    object Spades9 : Card("S9", 9, Suit.SPADES, 9, listOf(Tag.Unit))
+    object Spades10 : Card("S10", 10, Suit.SPADES, 10, listOf(Tag.Unit))
+    object SpadesJack : Card("SJ", 11, Suit.SPADES, 0, listOf(Tag.Unit), CaptainOngoingEffect())
+    object SpadesQueen : Card("SQ", 12, Suit.SPADES, 10, listOf(Tag.Unit, Tag.Queen))
+    object SpadesKing : Card("SK", 13, Suit.SPADES, 10, listOf(Tag.Unit))
 
-    object Diamond3 : Card("D3", 3, Suit.DIAMONDS, 3)
-    object Diamond4 : Card("D4", 4, Suit.DIAMONDS, 0, listOf(Tag.Militia), MilitiaOngoingEffect())
-    object Diamond5 : Card("D5", 5, Suit.DIAMONDS, 5)
-    object Diamond6 : Card("D6", 6, Suit.DIAMONDS, 6)
-    object Diamond7 : Card("D7", 7, Suit.DIAMONDS, 7)
-    object Diamond8 : Card("D8", 8, Suit.DIAMONDS, 8)
-    object Diamond9 : Card("D9", 9, Suit.DIAMONDS, 9)
-    object Diamond10 : Card("D10", 10, Suit.DIAMONDS, 10)
-    object DiamondJack : Card("DJ", 11, Suit.DIAMONDS, 0, ongoing = CaptainOngoingEffect())
-    object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS, 10)
-    object DiamondKing : Card("DK", 13, Suit.DIAMONDS, 10)
+    object Diamond3 : Card("D3", 3, Suit.DIAMONDS, 3, listOf(Tag.Unit, Tag.Spy), null, DrawCardsImmediateEffect())
+    object Diamond4 : Card("D4", 4, Suit.DIAMONDS, 0, listOf(Tag.Unit, Tag.Militia), MilitiaOngoingEffect())
+    object Diamond5 : Card("D5", 5, Suit.DIAMONDS, 5, listOf(Tag.Unit))
+    object Diamond6 : Card("D6", 6, Suit.DIAMONDS, 6, listOf(Tag.Unit))
+    object Diamond7 : Card("D7", 7, Suit.DIAMONDS, 7, listOf(Tag.Unit), CavalryOngoingEffect())
+    object Diamond8 : Card("D8", 8, Suit.DIAMONDS, 8, listOf(Tag.Unit))
+    object Diamond9 : Card("D9", 9, Suit.DIAMONDS, 9, listOf(Tag.Unit))
+    object Diamond10 : Card("D10", 10, Suit.DIAMONDS, 10, listOf(Tag.Unit))
+    object DiamondJack : Card("DJ", 11, Suit.DIAMONDS, 0, listOf(Tag.Unit), CaptainOngoingEffect())
+    object DiamondQueen : Card("DQ", 12, Suit.DIAMONDS, 10, listOf(Tag.Unit, Tag.Queen))
+    object DiamondKing : Card("DK", 13, Suit.DIAMONDS, 10, listOf(Tag.Unit))
 
-    object Clubs3 : Card("C3", 3, Suit.CLUBS, 3)
-    object Clubs4 : Card("C4", 4, Suit.CLUBS, 0, listOf(Tag.Militia), MilitiaOngoingEffect())
-    object Clubs5 : Card("C5", 5, Suit.CLUBS, 5)
-    object Clubs6 : Card("C6", 6, Suit.CLUBS, 6)
-    object Clubs7 : Card("C7", 7, Suit.CLUBS, 7)
-    object Clubs8 : Card("C8", 8, Suit.CLUBS, 8)
-    object Clubs9 : Card("C9", 9, Suit.CLUBS, 9)
-    object Clubs10 : Card("C10", 10, Suit.CLUBS, 10)
-    object ClubsJack : Card("CJ", 11, Suit.CLUBS, 0, ongoing = CaptainOngoingEffect())
-    object ClubsQueen : Card("CQ", 12, Suit.CLUBS, 10)
-    object ClubsKing : Card("CK", 13, Suit.CLUBS, 10)
+    object Clubs3 : Card("C3", 3, Suit.CLUBS, 3, listOf(Tag.Unit, Tag.Spy), null, DrawCardsImmediateEffect())
+    object Clubs4 : Card("C4", 4, Suit.CLUBS, 0, listOf(Tag.Unit, Tag.Militia), MilitiaOngoingEffect())
+    object Clubs5 : Card("C5", 5, Suit.CLUBS, 5, listOf(Tag.Unit))
+    object Clubs6 : Card("C6", 6, Suit.CLUBS, 6, listOf(Tag.Unit))
+    object Clubs7 : Card("C7", 7, Suit.CLUBS, 7, listOf(Tag.Unit), CavalryOngoingEffect())
+    object Clubs8 : Card("C8", 8, Suit.CLUBS, 8, listOf(Tag.Unit))
+    object Clubs9 : Card("C9", 9, Suit.CLUBS, 9, listOf(Tag.Unit))
+    object Clubs10 : Card("C10", 10, Suit.CLUBS, 10, listOf(Tag.Unit))
+    object ClubsJack : Card("CJ", 11, Suit.CLUBS, 0, listOf(Tag.Unit), CaptainOngoingEffect())
+    object ClubsQueen : Card("CQ", 12, Suit.CLUBS, 10, listOf(Tag.Unit, Tag.Queen))
+    object ClubsKing : Card("CK", 13, Suit.CLUBS, 10, listOf(Tag.Unit))
 
     /**
      * Convert to data transfer object.
      */
     fun toDTO() = CardDTO(
         name = name,
+        numeric = numeric,
         basePower = basePower,
         suit = suit.name.lowercase(),
+        currentPower = currentPower,
     )
 
     companion object {

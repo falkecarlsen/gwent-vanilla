@@ -35,11 +35,7 @@ class GameTest {
     @Test
     fun autoPass01() {
         // Check if player 0 auto-passes when hand becomes empty
-        val deck = TestSetup.stackedDeck(
-            p0Cards = listOf(Card.Spades3, Card.Diamond3, Card.Clubs3, Card.Spades4, Card.Diamond4,
-                Card.Clubs4, Card.Spades7, Card.Diamond7, Card.Clubs7, Card.SpadesJack),
-        )
-        val game = Game("Alice", "Bob", deck)
+        val game = Game("Alice", "Bob")
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
             limit--
@@ -80,7 +76,7 @@ class GameTest {
     fun autoEnd01() {
         // Check if game auto-ends when both players have empty hands
         val deck = TestSetup.stackedDeck(
-            p0Cards = listOf(Card.Spades3, Card.Diamond3, Card.Clubs3, Card.Hearts3, Card.Spades4, Card.Diamond4,
+            p0Cards = listOf(Card.Spades5, Card.Diamond5, Card.Clubs5, Card.Hearts3, Card.Spades4, Card.Diamond4,
                 Card.Clubs4, Card.Spades7, Card.Diamond7, Card.Clubs7),
             p1Cards = listOf(Card.SpadesKing, Card.DiamondKing, Card.ClubsKing, Card.SpadesQueen,
                 Card.SpadesJack, Card.DiamondJack, Card.ClubsJack, Card.Spades9, Card.Diamond9, Card.Clubs9),
