@@ -98,8 +98,10 @@ sealed class Card(
      */
     fun toDTO() = CardDTO(
         name = name,
+        numeric = numeric,
         basePower = basePower,
         suit = suit.name.lowercase(),
+        currentPower = currentPower,
     )
 
     companion object {
