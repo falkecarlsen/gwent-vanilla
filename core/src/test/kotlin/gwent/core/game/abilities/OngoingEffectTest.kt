@@ -59,12 +59,12 @@ class OngoingEffectTest {
         val initDeck = TestSetup.stackedDeck(listOf(Card.Spades7, Card.Spades4), listOf(), listOf())
         val game = Game("Alice", "Bob", initDeck.toMutableList(), 0)
 
-        game.tryPerformAction(PlayCard(0, Card.Spades7))
+        game.tryPerformAction(PlayCard(0, Card.Spades7, null))
 
         assertEquals(9, Card.Spades7.currentPower)
 
         game.tryPerformAction(Pass(1))
-        game.tryPerformAction(PlayCard(0, Card.Spades5))
+        game.tryPerformAction(PlayCard(0, Card.Spades4, null))
 
         assertEquals(7, Card.Spades7.currentPower)
     }

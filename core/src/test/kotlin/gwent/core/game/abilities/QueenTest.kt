@@ -14,11 +14,11 @@ class QueenTest {
         val initDeck = TestSetup.stackedDeck(listOf(Card.DiamondQueen, Card.ClubsQueen), listOf(Card.SpadesQueen), listOf())
         val game = Game("Alice", "Bob", initDeck.toMutableList(), 0)
 
-        game.tryPerformAction(PlayCard(0, Card.DiamondQueen))
+        game.tryPerformAction(PlayCard(0, Card.DiamondQueen, null))
 
-        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(1, Card.SpadesQueen)) }
+        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(1, Card.SpadesQueen, null)) }
         game.tryPerformAction(Pass(1))
 
-        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(0, Card.ClubsQueen)) }
+        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(0, Card.ClubsQueen, null)) }
     }
 }

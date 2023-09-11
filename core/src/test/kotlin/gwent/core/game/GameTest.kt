@@ -43,7 +43,9 @@ class GameTest {
             assert(game.players[1].hand.isNotEmpty() || game.players[1].hasPassed)
 
             if (game.currentPlayer == 0) {
-                game.tryPerformAction(PlayCard(0, game.players[0].hand.first(), null))
+                val card = game.players[0].hand.first()
+                val row = if (card.suit == Suit.HEARTS) RowSuit.DIAMONDS else null
+                game.tryPerformAction(PlayCard(0, card, row))
             } else
                 game.tryPerformAction(Pass(1))
         }
@@ -100,10 +102,10 @@ class GameTest {
     @Test
     fun postRoundCleanup01() {
         // Check if board, passed flags, and round variables are updated correctly when round ends
-        val deck = TestSetup.stackedDeck(listOf(Card.Diamond4), listOf(Card.Clubs7))
+        val deck = TestSetup.stackedDeck(listOf(Card.Diamond4), listOf(Card.Clubs5))
         val game = Game("Alice", "Bob", deck, 0)
         game.tryPerformAction(PlayCard(0, Card.Diamond4, null))
-        game.tryPerformAction(PlayCard(1, Card.Clubs7, null))
+        game.tryPerformAction(PlayCard(1, Card.Clubs5, null))
 
         game.tryPerformAction(Pass(0))
 
@@ -111,7 +113,7 @@ class GameTest {
         assert(game.players[0].hasPassed)
         assert(!game.players[1].hasPassed)
         assertEquals(4, game.players[0].board.currentPower)
-        assertEquals(7, game.players[1].board.currentPower)
+        assertEquals(5, game.players[1].board.currentPower)
 
         game.tryPerformAction(Pass(1))
 
