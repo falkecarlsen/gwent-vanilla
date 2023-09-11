@@ -12,13 +12,13 @@ def pretty_print_game(game: Game, pov: int):
     Bob
     Hand: 4 cards
 
-          ♠ ( 4) | ♠Q(2) ♠9(2)
-    (35)  ♣ (16) | ♣6 ♣K
-          ♦ (15) | ♦4 ♦3 ♦8
-    Weather:   ♠ +------------------------ Round: 2
-          ♦ (10) | ♦K(10)
-    (23)  ♣ (11) | ♦5 ♣7(9) ♣10
-          ♠ ( 2) | ♠J(2)
+          ♠ ( 4) │ ♠Q(2) ♠9(2)
+    (35)  ♣ (16) │ ♣6 ♣K
+          ♦ (15) │ ♦4 ♦3 ♦8
+    Weather:   ♠ ├───────────────────────── Round: 2
+          ♦ (10) │ ♦K(10)
+    (23)  ♣ (11) │ ♦5 ♣7(9) ♣10
+          ♠ ( 2) │ ♠J(2)
     *
     Alice <<
     Hand: ♠3 ♦7 ♦8 ♥Q ♥6
@@ -30,9 +30,10 @@ def pretty_print_game(game: Game, pov: int):
     def letter_to_suit_icon(letter: str) -> str:
         return {'S': '♠', 'D': '♦', 'C': '♣', 'H': '♥'}[letter]
 
-    def pretty_unit(unit: Card) -> str:
+    def pretty_unit(unit: Card, hide_power: bool=False) -> str:
         base = letter_to_suit_icon(unit.name[0]) + unit.name[1:]
-        # TODO: if unit.current_power != unit.base_power: add (XX) with current power
+        if not hide_power and unit.numeric != unit.current_power:
+            base += f'({unit.current_power})'
         return base
 
     def pretty_weather(g: Game) -> str:
@@ -42,27 +43,21 @@ def pretty_print_game(game: Game, pov: int):
     # Print opponent
     print(game.players[opponent].name, '<<' if game.current_player == opponent else '')
     print(f'Hand: {len(game.players[opponent].hand)} cards')
-    if game.players[opponent].rounds_won > game.players[pov].rounds_won:
-        print('*')
-    else:
-        print('')
+    print('*' * game.players[opponent].rounds_won)
 
     # Print player boards
-    print(f'      ♠ ({game.players[opponent].board.spades.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.spades.units))
-    print(f'({game.players[opponent].board.current_power:>2})  ♣ ({game.players[opponent].board.clubs.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.clubs.units))
-    print(f'      ♦ ({game.players[opponent].board.diamonds.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.diamonds.units))
-    print(f'Weather: {pretty_weather(game)} +------------------------ Round: {game.round}')
-    print(f'      ♦ ({game.players[pov].board.diamonds.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.diamonds.units))
-    print(f'({game.players[pov].board.current_power:>2})  ♣ ({game.players[pov].board.clubs.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.clubs.units))
-    print(f'      ♠ ({game.players[pov].board.spades.current_power:>2}) | ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.spades.units))
+    print(f'      ♠ ({game.players[opponent].board.spades.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.spades.units))
+    print(f'({game.players[opponent].board.current_power:>2})  ♣ ({game.players[opponent].board.clubs.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.clubs.units))
+    print(f'      ♦ ({game.players[opponent].board.diamonds.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[opponent].board.diamonds.units))
+    print(f'Weather: {pretty_weather(game)} ├───────────────────────── Round: {game.round}')
+    print(f'      ♦ ({game.players[pov].board.diamonds.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.diamonds.units))
+    print(f'({game.players[pov].board.current_power:>2})  ♣ ({game.players[pov].board.clubs.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.clubs.units))
+    print(f'      ♠ ({game.players[pov].board.spades.current_power:>2}) │ ' + ' '.join(pretty_unit(u) for u in game.players[pov].board.spades.units))
 
     # Print local player
-    if game.players[opponent].rounds_won < game.players[pov].rounds_won:
-        print('*')
-    else:
-        print('')
+    print('*' * game.players[pov].rounds_won)
     print(game.players[pov].name, '<<' if game.current_player == pov else '')
-    print(f'Hand: ' + ' '.join(pretty_unit(u) for u in game.players[pov].hand))
+    print(f'Hand: ' + ' '.join(pretty_unit(u, hide_power=True) for u in game.players[pov].hand))
     print('/////////////////////////////////////////////////')
 
 
@@ -72,7 +67,7 @@ class GwentClient:
         self.host = host
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.messenger = Messenger(socket)
+        self.messenger = Messenger(self.socket)
 
         self.player_index = -1
 
@@ -108,7 +103,8 @@ class GwentClient:
                             else:
                                 print('Waiting for opponents move...')
                         else:
-                            print('Game over')
+                            winner = 0 if game.players[0].rounds_won > game.players[1].rounds_won else 1   # TODO Ties
+                            print(f'Game over, {game.players[winner].name} wins!')
                             return
                 elif msg['type'] == MessageType.INVALID_ACTION:
                     # The player's action was invalid

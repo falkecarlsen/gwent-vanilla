@@ -13,11 +13,13 @@ class Player(
     var hand: MutableList<Card> = mutableListOf()
     val board: PlayerBoard = PlayerBoard()
     var hasPassed: Boolean = false
+    var lastPlayedUnit: Card? = null
 
     /**
      * Clear this player's board and mark [hasPassed] as false.
      */
     fun resetBoardAndPassedFlag() {
+        lastPlayedUnit = null
         hasPassed = false
         for ((suit, row) in board.rows) {
             row.cards.forEach { it.owner = null; it.row = null }
