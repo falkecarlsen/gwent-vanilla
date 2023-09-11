@@ -52,4 +52,20 @@ class OngoingEffectTest {
 
         assertEquals(9, Card.SpadesJack.currentPower)
     }
+
+    @Test
+    fun cavalry01() {
+        // Test if cavalry effect works
+        val initDeck = TestSetup.stackedDeck(listOf(Card.Spades7, Card.Spades4), listOf(), listOf())
+        val game = Game("Alice", "Bob", initDeck.toMutableList(), 0)
+
+        game.tryPerformAction(PlayCard(0, Card.Spades7))
+
+        assertEquals(9, Card.Spades7.currentPower)
+
+        game.tryPerformAction(Pass(1))
+        game.tryPerformAction(PlayCard(0, Card.Spades5))
+
+        assertEquals(7, Card.Spades7.currentPower)
+    }
 }

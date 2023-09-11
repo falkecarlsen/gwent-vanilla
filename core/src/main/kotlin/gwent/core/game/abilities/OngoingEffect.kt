@@ -18,6 +18,7 @@ interface OngoingEffect {
  */
 enum class OngoingEffectOrdering {
     Militia,
+    Cavalry,
     Captain,
 }
 
@@ -29,6 +30,7 @@ class MilitiaOngoingEffect(val multiplier: Int = 4) : OngoingEffect {
     override fun order() = OngoingEffectOrdering.Militia
 
     override fun apply(source: Card, game: Game) {
+        if (source.row == null) return
         val count = game.queryBoard(player = source.owner!!, tags = listOf(Tag.Militia)).count()
         source.currentPower += multiplier * count
     }
@@ -42,7 +44,21 @@ class CaptainOngoingEffect(val multiplier: Int = 3) : OngoingEffect {
     override fun order() = OngoingEffectOrdering.Captain
 
     override fun apply(source: Card, game: Game) {
+        if (source.row == null) return
         val count = game.queryBoard(player = source.owner!!, row = source.row).count()
         source.currentPower += multiplier * count
+    }
+}
+
+/**
+ * The [CavalryOngoingEffect] gives the [source] card more power if it is the latest unit played by its owner.
+ */
+class CavalryOngoingEffect(val bonusPower: Int = 2) : OngoingEffect {
+
+    override fun order() = OngoingEffectOrdering.Cavalry
+
+    override fun apply(source: Card, game: Game) {
+        if (game.players[source.owner!!].lastPlayedUnit == source)
+            source.currentPower += bonusPower
     }
 }
