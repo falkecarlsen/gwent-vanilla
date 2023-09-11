@@ -35,7 +35,8 @@ class GameTest {
     @Test
     fun autoPass01() {
         // Check if player 0 auto-passes when hand becomes empty
-        val deck = TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
+        val deck =
+            TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
         val game = Game("Alice", "Bob", deck.toMutableList())
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
@@ -54,7 +55,8 @@ class GameTest {
     @Test
     fun autoPass02() {
         // Check if player 1 auto-passes when hand becomes empty
-        val deck = TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
+        val deck =
+            TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
         val game = Game("Alice", "Bob", deck.toMutableList())
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
@@ -73,7 +75,11 @@ class GameTest {
     @Test
     fun autoEnd01() {
         // Check if game auto-ends when both players have empty hands
-        val deck = TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
+        val deck = TestSetup.stackedDeck(
+            listOf(),
+            listOf(),
+            listOf(Card.Spades7, Card.Diamond7, Card.Clubs3, Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen)
+        )
         val game = Game("Alice", "Bob", deck.toMutableList())
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
@@ -92,7 +98,7 @@ class GameTest {
         // Check if board, passed flags, and round variables are updated correctly when round ends
         val game = Game("Alice", "Bob", TestSetup.variedDeck(), 0)
         game.tryPerformAction(PlayCard(0, Card.Diamond4))
-        game.tryPerformAction(PlayCard(1, Card.Clubs3))
+        game.tryPerformAction(PlayCard(1, Card.Clubs5))
 
         game.tryPerformAction(Pass(0))
 
@@ -100,7 +106,7 @@ class GameTest {
         assert(game.players[0].hasPassed)
         assert(!game.players[1].hasPassed)
         assertEquals(4, game.players[0].board.currentPower)
-        assertEquals(3, game.players[1].board.currentPower)
+        assertEquals(5, game.players[1].board.currentPower)
 
         game.tryPerformAction(Pass(1))
 
