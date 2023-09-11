@@ -14,3 +14,6 @@ class OtherPlayersTurnException(val givenPlayerId: Int, val currentPlayerId: Int
 
 class NotInHandException(val card: Card, val playerId: Int) :
     InvalidActionException("The card \"${card.name}\" is not in player $playerId's hand.")
+
+class ExistingQueenException(val card: Card, val playerId: Int) :
+    InvalidActionException("There can only ever be one queen on the entire battlefield.")

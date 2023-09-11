@@ -60,6 +60,10 @@ class Game(
         // Check if player is holding the card
         if (!player.hand.contains(action.card)) throw NotInHandException(action.card, action.player)
 
+        // Only allow one queen on the board
+        if (Tag.Queen in action.card.tags && queryBoard(tags = listOf(Tag.Queen)).isNotEmpty())
+            throw ExistingQueenException(action.card, action.player)
+
         return true
     }
 
@@ -90,6 +94,7 @@ class Game(
         // Move card from hand to board and recalculate power
         player.hand.remove(action.card)
         player.board.add(action.card)
+        if (Tag.Unit in action.card.tags) player.lastPlayedUnit = action.card
         recalculatePower()
 
         // Auto-pass if empty hand

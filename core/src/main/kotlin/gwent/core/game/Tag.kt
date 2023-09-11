@@ -1,5 +1,7 @@
 package gwent.core.game
 
 enum class Tag {
-    Militia
+    Unit,
+    Militia,
+    Queen,
 }
