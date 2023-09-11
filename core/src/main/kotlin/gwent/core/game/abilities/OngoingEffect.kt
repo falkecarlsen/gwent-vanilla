@@ -30,6 +30,7 @@ class MilitiaOngoingEffect(val multiplier: Int = 4) : OngoingEffect {
     override fun order() = OngoingEffectOrdering.Militia
 
     override fun apply(source: Card, game: Game) {
+        if (source.row == null) return
         val count = game.queryBoard(player = source.owner!!, tags = listOf(Tag.Militia)).count()
         source.currentPower += multiplier * count
     }
@@ -43,6 +44,7 @@ class CaptainOngoingEffect(val multiplier: Int = 3) : OngoingEffect {
     override fun order() = OngoingEffectOrdering.Captain
 
     override fun apply(source: Card, game: Game) {
+        if (source.row == null) return
         val count = game.queryBoard(player = source.owner!!, row = source.row).count()
         source.currentPower += multiplier * count
     }
