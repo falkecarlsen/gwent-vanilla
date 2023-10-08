@@ -13,7 +13,7 @@ class OtherPlayersTurnException(val givenPlayerId: Int, val currentPlayerId: Int
     InvalidActionException("It is not player $givenPlayerId's turn. It is $currentPlayerId's turn.")
 
 class NotInHandException(val card: Card, val playerId: Int) :
-    InvalidActionException("The card \"${card.name}\" is not in player $playerId's hand.")
+    InvalidActionException("The card \"${card.type.name}\" is not in player $playerId's hand.")
 
 class ExistingQueenException(val card: Card, val playerId: Int) :
     InvalidActionException("There can only ever be one queen on the entire battlefield.")
@@ -21,4 +21,4 @@ class ExistingQueenException(val card: Card, val playerId: Int) :
 class MissingRowParameterException(val card: Card) : InvalidActionException("Row must specified for wild cards")
 
 class InvalidRowParameterException(val card: Card) :
-    InvalidActionException("Non-wild cards like ${card.name} must be played in the row matching their suite")
+    InvalidActionException("Non-wild cards like ${card.type.name} must be played in the row matching their suite")

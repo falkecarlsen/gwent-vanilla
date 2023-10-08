@@ -1,6 +1,7 @@
 package gwent.core.testing
 
 import gwent.core.game.Card
+import gwent.core.game.CardType
 import gwent.core.game.INIT_HAND_SIZE
 
 /**
@@ -13,17 +14,17 @@ object TestSetup {
      * such that the top of the deck (the cards drawn next) are a specific sequence of cards.
      */
     fun stackedDeck(
-        p0Cards: List<Card> = listOf(),
-        p1Cards: List<Card> = listOf(),
-        topOfDeck: List<Card> = listOf()
+        p0Cards: List<CardType> = listOf(),
+        p1Cards: List<CardType> = listOf(),
+        topOfDeck: List<CardType> = listOf()
     ): MutableList<Card> {
         if (p0Cards.size > INIT_HAND_SIZE) throw IllegalArgumentException("Player 0 cannot have more than $INIT_HAND_SIZE cards in their hand initially.")
         if (p1Cards.size > INIT_HAND_SIZE) throw IllegalArgumentException("Player 1 cannot have more than $INIT_HAND_SIZE cards in their hand initially.")
         val provided = p0Cards + p1Cards + topOfDeck
         if (provided.toSet().size != provided.size) throw IllegalArgumentException("Player 0's hand, player 1's hand, and the top of the deck must be distinct.")
 
-        val rest = Card.all().subtract(provided.toSet()).toMutableList()
-        val deck = mutableListOf<Card>()
+        val rest = CardType.entries.subtract(provided.toSet()).toMutableList()
+        val deck = mutableListOf<CardType>()
 
         // Build player 0's hand
         deck += p0Cards
@@ -41,6 +42,6 @@ object TestSetup {
         deck += topOfDeck
         deck += rest
 
-        return deck
+        return deck.map { Card(it) }.toMutableList()
     }
 }

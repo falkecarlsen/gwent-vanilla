@@ -1,5 +1,6 @@
 package gwent.core.game
 
+import gwent.core.game.CardType.*
 import gwent.core.testing.TestSetup
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,8 +37,7 @@ class GameTest {
     fun autoPass01() {
         // Check if player 0 auto-passes when hand becomes empty
         val deck = TestSetup.stackedDeck(
-            p0Cards = listOf(Card.SpadesKing, Card.DiamondKing, Card.ClubsKing, Card.SpadesQueen,
-                Card.SpadesJack, Card.DiamondJack, Card.ClubsJack, Card.Spades9, Card.Diamond9, Card.Clubs9),
+            p0Cards = listOf(SK, DK, CK, SQ, SJ, DJ, CJ, S9, D9, C9),
         )
         val game = Game("Alice", "Bob", deck)
         var limit = 10000
@@ -48,8 +48,8 @@ class GameTest {
 
             if (game.currentPlayer == 0) {
                 val card = game.players[0].hand.first()
-                val row = if (card.suit == Suit.HEARTS) RowSuit.DIAMONDS else null
-                game.tryPerformAction(PlayCard(0, card, row))
+                val row = if (card.type.suit == Suit.HEARTS) RowSuit.DIAMONDS else null
+                game.tryPerformAction(PlayCard(0, card.type, row))
             } else
                 game.tryPerformAction(Pass(1))
         }
@@ -60,8 +60,7 @@ class GameTest {
     fun autoPass02() {
         // Check if player 1 auto-passes when hand becomes empty
         val deck = TestSetup.stackedDeck(
-            p1Cards = listOf(Card.SpadesKing, Card.DiamondKing, Card.ClubsKing, Card.SpadesQueen,
-                Card.SpadesJack, Card.DiamondJack, Card.ClubsJack, Card.Spades9, Card.Diamond9, Card.Clubs9),
+            p1Cards = listOf(SK, DK, CK, SQ, SJ, DJ, CJ, S9, D9, C9),
         )
         val game = Game("Alice", "Bob", deck)
         var limit = 10000
@@ -73,7 +72,7 @@ class GameTest {
             if (game.currentPlayer == 0)
                 game.tryPerformAction(Pass(0))
             else
-                game.tryPerformAction(PlayCard(1, game.players[1].hand.first(), null))
+                game.tryPerformAction(PlayCard(1, game.players[1].hand.first().type, null))
         }
         assert(limit > 0)
     }
@@ -82,10 +81,8 @@ class GameTest {
     fun autoEnd01() {
         // Check if game auto-ends when both players have empty hands
         val deck = TestSetup.stackedDeck(
-            p0Cards = listOf(Card.Spades5, Card.Diamond5, Card.Clubs5, Card.Hearts3, Card.Spades4, Card.Diamond4,
-                Card.Clubs4, Card.Spades7, Card.Diamond7, Card.Clubs7),
-            p1Cards = listOf(Card.SpadesKing, Card.DiamondKing, Card.ClubsKing, Card.SpadesQueen,
-                Card.SpadesJack, Card.DiamondJack, Card.ClubsJack, Card.Spades9, Card.Diamond9, Card.Clubs9),
+            p0Cards = listOf(S5, D5, C5, H5, S4, D4, C4, S7, D7, C7),
+            p1Cards = listOf(SK, DK, CK, SQ, SJ, DJ, CJ, S9, D9, C9),
         )
         val game = Game("Alice", "Bob", deck)
         var limit = 10000
@@ -97,8 +94,8 @@ class GameTest {
 
 
             val card = game.players[game.currentPlayer].hand.first()
-            val row = RowSuit.SPADES.takeIf { card.suit == Suit.HEARTS }
-            game.tryPerformAction(PlayCard(game.currentPlayer, card, row))
+            val row = RowSuit.SPADES.takeIf { card.type.suit == Suit.HEARTS }
+            game.tryPerformAction(PlayCard(game.currentPlayer, card.type, row))
         }
         assert(limit > 0)
     }
@@ -106,10 +103,10 @@ class GameTest {
     @Test
     fun postRoundCleanup01() {
         // Check if board, passed flags, and round variables are updated correctly when round ends
-        val deck = TestSetup.stackedDeck(listOf(Card.Diamond4), listOf(Card.Clubs5))
+        val deck = TestSetup.stackedDeck(listOf(D4), listOf(C5))
         val game = Game("Alice", "Bob", deck, 0)
-        game.tryPerformAction(PlayCard(0, Card.Diamond4, null))
-        game.tryPerformAction(PlayCard(1, Card.Clubs5, null))
+        game.tryPerformAction(PlayCard(0, D4, null))
+        game.tryPerformAction(PlayCard(1, C5, null))
 
         game.tryPerformAction(Pass(0))
 
