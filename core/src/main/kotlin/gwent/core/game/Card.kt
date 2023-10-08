@@ -20,6 +20,20 @@ enum class Suit {
             HEARTS -> null
         }
     }
+
+    companion object {
+        fun fromNameOrNull(name: String): Suit? {
+            return when (name) {
+                "spades" -> SPADES
+                "diamonds" -> DIAMONDS
+                "clubs" -> CLUBS
+                "hearts" -> HEARTS
+                else -> null
+            }
+        }
+
+        fun fromName(name: String): Suit = fromNameOrNull(name) ?: throw InvalidSuitNameException(name)
+    }
 }
 
 /**
@@ -38,6 +52,12 @@ enum class RowSuit {
             CLUBS -> Suit.CLUBS
         }
     }
+
+    companion object {
+        fun fromNameOrNull(name: String): RowSuit? = Suit.fromNameOrNull(name)?.toRowSuit()
+
+        fun fromName(name: String): RowSuit = fromNameOrNull(name) ?: throw InvalidSuitNameException(name)
+    }
 }
 
 /**
@@ -55,6 +75,18 @@ sealed class Card(
     var currentPower: Int = basePower
     var owner: Int? = null
     var row: RowSuit? = null
+
+    object Hearts3 : Card("H3", 3, Suit.HEARTS, 3, listOf(Tag.Unit, Tag.Wild, Tag.Spy), null, DrawCardsImmediateEffect())
+    object Hearts4 : Card("H4", 4, Suit.HEARTS, 0, listOf(Tag.Unit, Tag.Wild, Tag.Militia), MilitiaOngoingEffect())
+    object Hearts5 : Card("H5", 5, Suit.HEARTS, 5, listOf(Tag.Unit, Tag.Wild))
+    object Hearts6 : Card("H6", 6, Suit.HEARTS, 6, listOf(Tag.Unit, Tag.Wild))
+    object Hearts7 : Card("H7", 7, Suit.HEARTS, 7, listOf(Tag.Unit, Tag.Wild), CavalryOngoingEffect())
+    object Hearts8 : Card("H8", 8, Suit.HEARTS, 8, listOf(Tag.Unit, Tag.Wild))
+    object Hearts9 : Card("H9", 9, Suit.HEARTS, 9, listOf(Tag.Unit, Tag.Wild))
+    object Hearts10 : Card("H10", 10, Suit.HEARTS, 10, listOf(Tag.Unit, Tag.Wild))
+    object HeartsJack : Card("HJ", 11, Suit.HEARTS, 0, listOf(Tag.Unit, Tag.Wild), CaptainOngoingEffect())
+    object HeartsQueen : Card("HQ", 12, Suit.HEARTS, 10, listOf(Tag.Unit, Tag.Wild, Tag.Queen))
+    object HeartsKing : Card("HK", 13, Suit.HEARTS, 10, listOf(Tag.Unit, Tag.Wild))
 
     object Spades3 : Card("S3", 3, Suit.SPADES, 3, listOf(Tag.Unit, Tag.Spy), null, DrawCardsImmediateEffect())
     object Spades4 : Card("S4", 4, Suit.SPADES, 0, listOf(Tag.Unit, Tag.Militia), MilitiaOngoingEffect())
@@ -108,6 +140,17 @@ sealed class Card(
          * Collection contain all cards.
          */
         fun all() = listOf(
+            Hearts3,
+            Hearts4,
+            Hearts5,
+            Hearts6,
+            Hearts7,
+            Hearts8,
+            Hearts9,
+            Hearts10,
+            HeartsJack,
+            HeartsQueen,
+            HeartsKing,
             Spades3,
             Spades4,
             Spades5,
@@ -152,6 +195,11 @@ sealed class Card(
  * Thrown when parsing card names and the given name is not valid.
  */
 class InvalidCardNameException(val invalidName: String) : RuntimeException("'$invalidName' is not a valid card name")
+
+/**
+ * Thrown when parsing row and suit names if the name is not valid.
+ */
+class InvalidSuitNameException(val invalidName: String) : RuntimeException("'$invalidName' is not a valid suit name")
 
 /**
  * Returns a shuffled deck with all cards.

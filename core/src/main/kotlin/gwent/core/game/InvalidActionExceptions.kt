@@ -17,3 +17,8 @@ class NotInHandException(val card: Card, val playerId: Int) :
 
 class ExistingQueenException(val card: Card, val playerId: Int) :
     InvalidActionException("There can only ever be one queen on the entire battlefield.")
+
+class MissingRowParameterException(val card: Card) : InvalidActionException("Row must specified for wild cards")
+
+class InvalidRowParameterException(val card: Card) :
+    InvalidActionException("Non-wild cards like ${card.name} must be played in the row matching their suite")
