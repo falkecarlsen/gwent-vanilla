@@ -2,9 +2,7 @@ package gwent.server
 
 import gwent.core.GameManager
 import gwent.core.GameStateChangeListener
-import gwent.core.game.Game
-import gwent.core.game.InvalidActionException
-import gwent.core.game.InvalidCardNameException
+import gwent.core.game.*
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
@@ -88,11 +86,23 @@ private class GwentClientHandler(
                     println("Invalid card name '${err.invalidName}'")
                     fail = true
 
+                } catch (err: InvalidSuitNameException) {
+                    // Message could not be parsed due to use of invalid suit name
+                    messenger.sendCommunicationError("Invalid suit name '${err.invalidName}'")
+                    println("Invalid suit name '${err.invalidName}'")
+                    fail = true
+
+                } catch (err: HeartIsNotRowSuitException) {
+                    messenger.sendInvalidAction("Expected the suit of a row, but got 'hearts'")
+                    println("Expected the suit of a row, but got 'hearts'")
+                    fail = true
+
                 } catch (err: InvalidActionException) {
                     // Action could not be performed
                     messenger.sendInvalidAction(err.reason)
                     println("Invalid action: ${err.reason}")
                     fail = true
+
                 }
                 if (!fail) println("Action successfully performed")
             }

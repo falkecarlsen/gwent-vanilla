@@ -21,4 +21,4 @@ class ExistingQueenException(val card: Card, val playerId: Int) :
 class MissingRowParameterException(val card: Card) : InvalidActionException("Row must specified for wild cards")
 
 class InvalidRowParameterException(val card: Card) :
-    InvalidActionException("Non-wild cards like ${card.type.name} must be played in the row matching their suite")
+    InvalidActionException("Non-wild cards like ${card.type.name} must be played in the row matching their suit")
