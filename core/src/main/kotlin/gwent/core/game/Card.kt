@@ -153,7 +153,7 @@ class Card(
      * Convert to data transfer object.
      */
     fun toDTO() = CardDTO(
-        type = type.name,
+        name = type.name,
         currentPower = currentPower,
     )
 }

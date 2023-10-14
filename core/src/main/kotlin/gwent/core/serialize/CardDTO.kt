@@ -5,6 +5,6 @@ package gwent.core.serialize
  * Intended as intermediary object in (de)serializable.
  */
 class CardDTO(
-    val type: String,
+    val name: String,
     val currentPower: Int,
 )
