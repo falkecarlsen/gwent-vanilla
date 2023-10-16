@@ -16,7 +16,7 @@ sealed class Action(
  */
 class PlayCard(
     player: Int,
-    val card: Card,
+    val type: CardType,
     val row: RowSuit?,
 ) : Action(player)
 

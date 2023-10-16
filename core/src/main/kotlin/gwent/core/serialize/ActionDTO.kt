@@ -47,7 +47,7 @@ class PlayCardDTO(
     val cardName: String,
     val row: String?,
 ) : ActionDTO(PLAY_CARD_TYPE, player) {
-    override fun toAction() = PlayCard(player, Card.fromName(cardName), row?.let { RowSuit.fromName(row) })
+    override fun toAction() = PlayCard(player, CardType.fromName(cardName), row?.let { RowSuit.fromName(row) })
 }
 
 /**

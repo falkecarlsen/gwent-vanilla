@@ -17,7 +17,7 @@ class PlayCard(Action):
     card_name: str
 
     def to_dict(self) -> Dict:
-        return dict(self.__dict__, type='play-card')
+        return dict(self.__dict__, row=None, type='play-card')
 
 
 @dataclass
