@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 
 
 class Action:
@@ -15,9 +15,10 @@ class Action:
 class PlayCard(Action):
     player: int
     card_name: str
+    row: Optional[str]
 
     def to_dict(self) -> Dict:
-        return dict(self.__dict__, row=None, type='play-card')
+        return dict(self.__dict__, type='play-card')
 
 
 @dataclass
@@ -37,10 +38,11 @@ def try_parse_action(player: int, txt: str) -> Action:
     if len(pieces) <= 0:
         raise ValueError('Empty action string')
 
-    if pieces[0] == 'play' and len(pieces) == 2:
+    if pieces[0] == 'play' and len(pieces) <= 3:
         # Server will verify if this card name make sense, so we do not need to check
         card = pieces[1]
-        return PlayCard(player, card)
+        row = pieces[2] if len(pieces) == 3 else None
+        return PlayCard(player, card, row)
 
     if pieces[0] == 'pass':
         return Pass(player)

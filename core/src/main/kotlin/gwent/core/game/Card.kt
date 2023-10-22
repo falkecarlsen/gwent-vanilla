@@ -56,7 +56,7 @@ enum class RowSuit {
     companion object {
         fun fromNameOrNull(name: String): RowSuit? = Suit.fromNameOrNull(name)?.toRowSuit()
 
-        fun fromName(name: String): RowSuit = fromNameOrNull(name) ?: throw InvalidSuitNameException(name)
+        fun fromName(name: String): RowSuit = Suit.fromName(name).toRowSuit() ?: throw HeartIsNotRowSuitException()
     }
 }
 
@@ -132,9 +132,14 @@ enum class CardType(
 class InvalidCardNameException(val invalidName: String) : RuntimeException("'$invalidName' is not a valid card name")
 
 /**
- * Thrown when parsing row and suit names if the name is not valid.
+ * Thrown when parsing a suit names if the name is not valid.
  */
 class InvalidSuitNameException(val invalidName: String) : RuntimeException("'$invalidName' is not a valid suit name")
+
+/**
+ * Thrown when parsing a row suit name, but its hearts.
+ */
+class HeartIsNotRowSuitException() : RuntimeException("Hearts is not the suit of a row")
 
 class Card(
     val type: CardType,
