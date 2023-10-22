@@ -11,14 +11,14 @@ class QueenTest {
     @Test
     fun queen01() {
         // Test if there can only be one queen
-        val initDeck = TestSetup.stackedDeck(listOf(Card.DiamondQueen, Card.ClubsQueen), listOf(Card.SpadesQueen), listOf())
+        val initDeck = TestSetup.stackedDeck(listOf(CardType.DQ, CardType.CQ), listOf(CardType.SQ), listOf())
         val game = Game("Alice", "Bob", initDeck.toMutableList(), 0)
 
-        game.tryPerformAction(PlayCard(0, Card.DiamondQueen))
+        game.tryPerformAction(PlayCard(0, CardType.DQ, null))
 
-        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(1, Card.SpadesQueen)) }
+        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(1, CardType.SQ, null)) }
         game.tryPerformAction(Pass(1))
 
-        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(0, Card.ClubsQueen)) }
+        assertThrows(ExistingQueenException::class.java) { game.tryPerformAction(PlayCard(0, CardType.CQ, null)) }
     }
 }

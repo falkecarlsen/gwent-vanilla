@@ -15,8 +15,9 @@ sealed class Action(
  * Playing cards is the most common action in the game.
  */
 class PlayCard(
-        player: Int,
-        val card: Card,
+    player: Int,
+    val type: CardType,
+    val row: RowSuit?,
 ) : Action(player)
 
 /**

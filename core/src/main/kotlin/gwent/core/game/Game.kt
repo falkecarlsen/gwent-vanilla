@@ -5,7 +5,7 @@ import gwent.core.serialize.GameDTO
 import kotlin.random.Random
 
 const val INIT_HAND_SIZE = 10
-val CARDS = Card.all().size
+val CARDS = CardType.entries.size
 const val ROUNDS = 3
 
 /**
@@ -18,6 +18,7 @@ class Game(
     val deck: MutableList<Card> = newDeck(),
     var currentPlayer: Int = if (Random.nextBoolean()) 0 else 1,
 ) {
+    val cards = deck.toList()
     val players = listOf(
         Player(0, player1Name),
         Player(1, player2Name),
@@ -53,13 +54,22 @@ class Game(
      */
     private fun validatePlayCard(action: PlayCard): Boolean {
         val player = players[action.player]
+        val card = cards.first { it.type == action.type }
 
         // Check if player is holding the card
-        if (!player.hand.contains(action.card)) throw NotInHandException(action.card, action.player)
+        if (!player.hand.contains(card)) throw NotInHandException(card, action.player)
+
+        // Cards must be played in row matching its suit,
+        // except Wild cards which can be played in any row
+        if (Tag.Wild in card.type.tags && action.row == null) {
+            throw MissingRowParameterException(card)
+        } else if (Tag.Wild !in card.type.tags && action.row != null && action.row != card.type.suit.toRowSuit()) {
+            throw InvalidRowParameterException(card)
+        }
 
         // Only allow one queen on the board
-        if (Tag.Queen in action.card.tags && queryBoard(tags = listOf(Tag.Queen)).isNotEmpty())
-            throw ExistingQueenException(action.card, action.player)
+        if (Tag.Queen in card.type.tags && queryBoard(tags = listOf(Tag.Queen)).isNotEmpty())
+            throw ExistingQueenException(card, action.player)
 
         return true
     }
@@ -87,17 +97,19 @@ class Game(
      */
     private fun performPlayCard(action: PlayCard) {
         val player = players[action.player]
+        val card = player.hand.first { it.type == action.type }
 
         // Move card from hand to board and recalculate power
-        action.card.immediate?.apply(action.card, this)
-        player.hand.remove(action.card)
-        if (Tag.Spy !in action.card.tags) {
-            player.board.add(action.card)
+        val rowSuit = action.row ?: card.type.suit.toRowSuit()!!
+        card.type.immediate?.apply(card, this)
+        player.hand.remove(card)
+        if (Tag.Spy !in card.type.tags) {
+            player.board.add(card, rowSuit)
         } else {
-            action.card.owner = 1 - player.index
-            players[1 - player.index].board.add(action.card)
+            card.owner = 1 - player.index
+            players[1 - player.index].board.add(card, rowSuit)
         }
-        if (Tag.Unit in action.card.tags) player.lastPlayedUnit = action.card
+        if (Tag.Unit in card.type.tags) player.lastPlayedUnit = card
         recalculatePower()
 
         // Auto-pass if empty hand
@@ -204,8 +216,8 @@ class Game(
             val board = player.board
             for ((_, row) in board.rows) {
                 for (card in row.cards) {
-                    card.currentPower = card.basePower
-                    if (card.ongoing != null) ongoingEffects.add(Pair(card, card.ongoing))
+                    card.currentPower = card.type.basePower
+                    if (card.type.ongoing != null) ongoingEffects.add(Pair(card, card.type.ongoing))
                 }
             }
         }
@@ -250,8 +262,8 @@ class Game(
             for ((rs, r) in pl.board.rows) {
                 if (row != null && row != rs) continue
                 for (card in r.cards) {
-                    if (suit != null && suit != card.suit) continue
-                    if (tags != null && !card.tags.containsAll(tags)) continue
+                    if (suit != null && suit != card.type.suit) continue
+                    if (tags != null && !card.type.tags.containsAll(tags)) continue
                     res.add(card)
                 }
             }

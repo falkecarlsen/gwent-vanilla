@@ -22,18 +22,22 @@ class Game:
 @dataclass
 class Card:
     name: str
-    numeric: int
     base_power: int
-    suit: str
     current_power: int
 
     @staticmethod
     def from_json_dict(json: dict) -> 'Card':
+        def base_power_from_name(name: str) -> int:
+            if name[1] == 'K':
+                return 10
+            if name[1] == 'Q':
+                return 10
+            if name[1] == 'J':
+                return 0
+            return int(name[1:])
         return Card(
             name=json['name'],
-            numeric=json['numeric'],
-            base_power=json['base_power'],
-            suit=json['suit'],
+            base_power=base_power_from_name(json['name']),
             current_power=json['current_power'],
         )
 

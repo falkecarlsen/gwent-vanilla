@@ -32,7 +32,7 @@ def pretty_print_game(game: Game, pov: int):
 
     def pretty_unit(unit: Card, hide_power: bool=False) -> str:
         base = letter_to_suit_icon(unit.name[0]) + unit.name[1:]
-        if not hide_power and unit.numeric != unit.current_power:
+        if not hide_power and unit.base_power != unit.current_power:
             base += f'({unit.current_power})'
         return base
 

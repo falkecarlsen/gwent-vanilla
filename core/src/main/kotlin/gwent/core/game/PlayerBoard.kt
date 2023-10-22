@@ -14,8 +14,7 @@ class PlayerBoard {
     )
     var currentPower: Int = 0
 
-    fun add(card: Card) {
-        val rowSuit = card.suit.toRowSuit()!!
+    fun add(card: Card, rowSuit: RowSuit) {
         rows[rowSuit]!!.add(card)
         card.row = rowSuit
     }

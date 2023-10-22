@@ -1,5 +1,6 @@
 package gwent.core.game
 
+import gwent.core.game.CardType.*
 import gwent.core.testing.TestSetup
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,18 +36,21 @@ class GameTest {
     @Test
     fun autoPass01() {
         // Check if player 0 auto-passes when hand becomes empty
-        val deck =
-            TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
-        val game = Game("Alice", "Bob", deck.toMutableList())
+        val deck = TestSetup.stackedDeck(
+            p0Cards = listOf(SK, DK, CK, SQ, SJ, DJ, CJ, S9, D9, C9),
+        )
+        val game = Game("Alice", "Bob", deck)
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
             limit--
             assert(game.players[0].hand.isNotEmpty() || game.players[0].hasPassed)
             assert(game.players[1].hand.isNotEmpty() || game.players[1].hasPassed)
 
-            if (game.currentPlayer == 0)
-                game.tryPerformAction(PlayCard(0, game.players[0].hand.first()))
-            else
+            if (game.currentPlayer == 0) {
+                val card = game.players[0].hand.first()
+                val row = if (card.type.suit == Suit.HEARTS) RowSuit.DIAMONDS else null
+                game.tryPerformAction(PlayCard(0, card.type, row))
+            } else
                 game.tryPerformAction(Pass(1))
         }
         assert(limit > 0)
@@ -55,9 +59,10 @@ class GameTest {
     @Test
     fun autoPass02() {
         // Check if player 1 auto-passes when hand becomes empty
-        val deck =
-            TestSetup.stackedDeck(listOf(), listOf(), listOf(Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen))
-        val game = Game("Alice", "Bob", deck.toMutableList())
+        val deck = TestSetup.stackedDeck(
+            p1Cards = listOf(SK, DK, CK, SQ, SJ, DJ, CJ, S9, D9, C9),
+        )
+        val game = Game("Alice", "Bob", deck)
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
             limit--
@@ -67,7 +72,7 @@ class GameTest {
             if (game.currentPlayer == 0)
                 game.tryPerformAction(Pass(0))
             else
-                game.tryPerformAction(PlayCard(1, game.players[1].hand.first()))
+                game.tryPerformAction(PlayCard(1, game.players[1].hand.first().type, null))
         }
         assert(limit > 0)
     }
@@ -76,11 +81,10 @@ class GameTest {
     fun autoEnd01() {
         // Check if game auto-ends when both players have empty hands
         val deck = TestSetup.stackedDeck(
-            listOf(),
-            listOf(),
-            listOf(Card.Spades7, Card.Diamond7, Card.Clubs3, Card.SpadesQueen, Card.DiamondQueen, Card.ClubsQueen)
+            p0Cards = listOf(S5, D5, C5, H5, S4, D4, C4, S7, D7, C7),
+            p1Cards = listOf(SK, DK, CK, SQ, SJ, DJ, CJ, S9, D9, C9),
         )
-        val game = Game("Alice", "Bob", deck.toMutableList())
+        val game = Game("Alice", "Bob", deck)
         var limit = 10000
         while (!game.isGameOver() && limit > 0) {
             limit--
@@ -88,7 +92,10 @@ class GameTest {
             assert(game.players[1].hand.isNotEmpty() || game.players[1].hasPassed)
             assert(game.round == 0) // Other rounds are skipped
 
-            game.tryPerformAction(PlayCard(game.currentPlayer, game.players[game.currentPlayer].hand.first()))
+
+            val card = game.players[game.currentPlayer].hand.first()
+            val row = RowSuit.SPADES.takeIf { card.type.suit == Suit.HEARTS }
+            game.tryPerformAction(PlayCard(game.currentPlayer, card.type, row))
         }
         assert(limit > 0)
     }
@@ -96,9 +103,10 @@ class GameTest {
     @Test
     fun postRoundCleanup01() {
         // Check if board, passed flags, and round variables are updated correctly when round ends
-        val game = Game("Alice", "Bob", TestSetup.variedDeck(), 0)
-        game.tryPerformAction(PlayCard(0, Card.Diamond4))
-        game.tryPerformAction(PlayCard(1, Card.Clubs5))
+        val deck = TestSetup.stackedDeck(listOf(D4), listOf(C5))
+        val game = Game("Alice", "Bob", deck, 0)
+        game.tryPerformAction(PlayCard(0, D4, null))
+        game.tryPerformAction(PlayCard(1, C5, null))
 
         game.tryPerformAction(Pass(0))
 
